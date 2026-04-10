@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Price Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#10b981" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -17,7 +20,7 @@
       --bg: #f0fdf4; --card: #fff; --text: #111827; --muted: #6b7280;
       --border: #e5e7eb; --radius: 12px;
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+    body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
     /* SIDEBAR */
     .sidebar { width: 220px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s; }
@@ -110,14 +113,18 @@
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
+      .sidebar-backdrop { display: block; }
       .main { margin-left: 0; }
       .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
       .overlay { align-items: flex-end; }
     }
+    .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; }
+    .sidebar-backdrop.open { display: block; }
   </style>
 </head>
 <body>
 
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 <aside class="sidebar" id="sidebar">
   <div class="logo-area">
     <div class="logo-text">PriceCat</div>
@@ -125,7 +132,7 @@
   </div>
   <nav>
     <div class="nav-label">Menu</div>
-    <button class="nav-item active" onclick="filterCategory('')">
+    <button class="nav-item active" onclick="filterCategory(''); closeSidebar()">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       All Products
     </button>
@@ -138,7 +145,7 @@
 
 <div class="main">
   <div class="topbar">
-    <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:0.25rem;" id="menuBtn">
+    <button onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;padding:0.25rem;" id="menuBtn">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
     </button>
     <h1 id="pageTitle">All Products</h1>
@@ -178,7 +185,15 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  let allItems = [];
+  function toggleSidebar() {
+    const open = document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarBackdrop').classList.toggle('open', open);
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarBackdrop').classList.remove('open');
+  }
   let activeCategory = '';
   let searchTerm = '';
   let debounceTimer = null;
@@ -250,7 +265,7 @@
     categoryBar.innerHTML = `<span class="cat-pill active" data-cat="" onclick="filterCategory('')">All</span>` +
       cats.map(c => `<span class="cat-pill" data-cat="${c}" onclick="filterCategory('${c}')">${c}</span>`).join('');
     sidebarCats.innerHTML = cats.map(c => `
-      <button class="nav-item" data-cat="${c}" onclick="filterCategory('${c}')">
+      <button class="nav-item" data-cat="${c}" onclick="filterCategory('${c}'); closeSidebar()">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>${c}
       </button>`).join('');
   }
@@ -350,7 +365,9 @@
   // Mobile menu button
   if (window.innerWidth <= 768) document.getElementById('menuBtn').style.display = 'block';
   window.addEventListener('resize', () => {
-    document.getElementById('menuBtn').style.display = window.innerWidth <= 768 ? 'block' : 'none';
+    const isMobile = window.innerWidth <= 768;
+    document.getElementById('menuBtn').style.display = isMobile ? 'block' : 'none';
+    if (!isMobile) closeSidebar();
   });
 
   // Register service worker for offline support

@@ -204,8 +204,12 @@
         <input type="text" id="fCategory" placeholder="e.g. Electronics" />
       </div>
       <div class="form-group">
-        <label>Image URL</label>
-        <input type="url" id="fImage" placeholder="https://..." />
+        <label>Product Image</label>
+        <input type="file" id="fImage" accept="image/*" style="padding:0.4rem 0.5rem;font-size:0.8rem;" />
+        <div id="imgPreview" style="margin-top:0.5rem;display:none;">
+          <img id="imgPreviewImg" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" />
+          <button type="button" onclick="clearImage()" style="margin-left:0.5rem;background:var(--red-light);color:var(--red);border:none;border-radius:6px;padding:0.25rem 0.5rem;font-size:0.75rem;cursor:pointer;">Remove</button>
+        </div>
       </div>
     </div>
     <p class="modal-error" id="modalError"></p>
@@ -222,6 +226,7 @@
   let searchTerm = '';
   let catFilter = '';
   let debounceTimer = null;
+  let pendingImageBase64 = null; // holds base64 of newly selected image
 
   const tbody = document.getElementById('tbody');
   const overlay = document.getElementById('overlay');
@@ -229,6 +234,27 @@
   const modalError = document.getElementById('modalError');
   const saveBtn = document.getElementById('saveBtn');
   const catFilterEl = document.getElementById('catFilter');
+
+  // Image file picker → base64
+  document.getElementById('fImage').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      pendingImageBase64 = e.target.result;
+      document.getElementById('imgPreviewImg').src = pendingImageBase64;
+      document.getElementById('imgPreview').style.display = 'flex';
+      document.getElementById('imgPreview').style.alignItems = 'center';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function clearImage() {
+    pendingImageBase64 = null;
+    document.getElementById('fImage').value = '';
+    document.getElementById('imgPreview').style.display = 'none';
+    document.getElementById('imgPreviewImg').src = '';
+  }
 
   function fmt(v) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v); }
   function timeAgo(d) {
@@ -310,19 +336,28 @@
 
   function openModal(id = null) {
     editingId = id;
+    pendingImageBase64 = null;
     modalTitle.textContent = id ? 'Edit Product' : 'Add Product';
     modalError.style.display = 'none';
+    document.getElementById('fImage').value = '';
+    document.getElementById('imgPreview').style.display = 'none';
+
     if (id) {
       const item = items.find(i => i.id === id);
       document.getElementById('fName').value = item.name;
       document.getElementById('fPrice').value = item.price;
       document.getElementById('fCategory').value = item.category || '';
-      document.getElementById('fImage').value = item.imageUrl || '';
+      // Show existing image preview
+      if (item.imageUrl) {
+        document.getElementById('imgPreviewImg').src = item.imageUrl;
+        document.getElementById('imgPreview').style.display = 'flex';
+        document.getElementById('imgPreview').style.alignItems = 'center';
+        pendingImageBase64 = item.imageUrl; // keep existing unless replaced
+      }
     } else {
       document.getElementById('fName').value = '';
       document.getElementById('fPrice').value = '';
       document.getElementById('fCategory').value = '';
-      document.getElementById('fImage').value = '';
     }
     overlay.classList.add('open');
     document.getElementById('fName').focus();
@@ -335,7 +370,7 @@
     const name = document.getElementById('fName').value.trim();
     const price = parseFloat(document.getElementById('fPrice').value);
     const category = document.getElementById('fCategory').value.trim() || 'General';
-    const imageUrl = document.getElementById('fImage').value.trim();
+    const imageUrl = pendingImageBase64 || '';
 
     modalError.style.display = 'none';
     if (!name) { modalError.textContent = 'Product name is required.'; modalError.style.display = 'block'; return; }

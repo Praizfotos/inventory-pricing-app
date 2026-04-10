@@ -375,14 +375,16 @@
   // ANALYTICS
   async function loadAnalytics() {
     document.getElementById('analyticsLoading').style.display = 'block';
+    document.getElementById('analyticsLoading').textContent = 'Loading analytics...';
     document.getElementById('analyticsContent').style.display = 'none';
     try {
       const res = await fetch('/api/admin/analytics');
       if (res.status === 401) { redirect401(); return; }
+      if (!res.ok) throw new Error('Server error ' + res.status);
       const data = await res.json();
       renderAnalytics(data);
-    } catch {
-      document.getElementById('analyticsLoading').textContent = 'Failed to load. Try refreshing.';
+    } catch(e) {
+      document.getElementById('analyticsLoading').innerHTML = `Failed to load analytics. <button onclick="loadAnalytics()" style="background:var(--green);color:#fff;border:none;border-radius:6px;padding:0.3rem 0.75rem;cursor:pointer;font-family:'Poppins',sans-serif;margin-left:0.5rem;">Retry</button>`;
     }
   }
 

@@ -63,7 +63,19 @@ app.post('/api/admin/login', async (req: Request, res: Response) => {
     return;
   }
 
-  const hash = process.env.ADMIN_PASSWORD_HASH || '';
+  const hash = (process.env.ADMIN_PASSWORD_HASH || '').trim();
+
+  // Fallback: if no hash set, allow login with password "admin"
+  if (!hash) {
+    if (password === 'admin') {
+      req.session!['admin'] = true;
+      res.status(200).json({ ok: true });
+    } else {
+      res.status(401).json({ error: 'No admin password configured. Use "admin" as password or set ADMIN_PASSWORD_HASH.' });
+    }
+    return;
+  }
+
   const match = await bcrypt.compare(password, hash);
 
   if (!match) {

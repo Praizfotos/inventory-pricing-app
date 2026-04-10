@@ -29,6 +29,12 @@ export async function initDb(): Promise<void> {
       "updatedAt"  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
+
+  // Safe migrations — add columns if they don't exist yet
+  await pool.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS total_stock INTEGER NOT NULL DEFAULT 0`);
+  await pool.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS units_sold INTEGER NOT NULL DEFAULT 0`);
+  await pool.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT 'General'`);
+  await pool.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS "imageUrl" TEXT NOT NULL DEFAULT ''`);
 }
 
 export async function closeDb(): Promise<void> {

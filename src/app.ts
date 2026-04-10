@@ -6,7 +6,7 @@ import { getDb } from './db';
 
 const app = express();
 
-app.use(express.json({ limit: '10mb' })); // allow base64 images
+app.use(express.json({ limit: '5mb' }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use(

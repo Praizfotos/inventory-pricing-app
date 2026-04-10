@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import fs from 'fs';
 
 let pool: Pool;
 
@@ -10,6 +11,12 @@ export function getDb(): Pool {
 }
 
 export async function initDb(): Promise<void> {
+  // Ensure persistent uploads directory exists
+  const uploadsDir = '/data/uploads';
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL?.includes('railway') || process.env.NODE_ENV === 'production'

@@ -226,7 +226,8 @@
   let searchTerm = '';
   let catFilter = '';
   let debounceTimer = null;
-  let pendingImageBase64 = null; // holds base64 of newly selected image
+  let pendingFile = null;       // holds the File object selected by the user
+  let existingImageUrl = null;  // holds the current imageUrl when editing
 
   const tbody = document.getElementById('tbody');
   const overlay = document.getElementById('overlay');
@@ -235,22 +236,20 @@
   const saveBtn = document.getElementById('saveBtn');
   const catFilterEl = document.getElementById('catFilter');
 
-  // Image file picker → base64
+  // Image file picker → local preview only (upload happens on save)
   document.getElementById('fImage').addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      pendingImageBase64 = e.target.result;
-      document.getElementById('imgPreviewImg').src = pendingImageBase64;
-      document.getElementById('imgPreview').style.display = 'flex';
-      document.getElementById('imgPreview').style.alignItems = 'center';
-    };
-    reader.readAsDataURL(file);
+    pendingFile = file;
+    const objectUrl = URL.createObjectURL(file);
+    document.getElementById('imgPreviewImg').src = objectUrl;
+    document.getElementById('imgPreview').style.display = 'flex';
+    document.getElementById('imgPreview').style.alignItems = 'center';
   });
 
   function clearImage() {
-    pendingImageBase64 = null;
+    pendingFile = null;
+    existingImageUrl = null;
     document.getElementById('fImage').value = '';
     document.getElementById('imgPreview').style.display = 'none';
     document.getElementById('imgPreviewImg').src = '';
@@ -336,7 +335,8 @@
 
   function openModal(id = null) {
     editingId = id;
-    pendingImageBase64 = null;
+    pendingFile = null;
+    existingImageUrl = null;
     modalTitle.textContent = id ? 'Edit Product' : 'Add Product';
     modalError.style.display = 'none';
     document.getElementById('fImage').value = '';
@@ -352,7 +352,7 @@
         document.getElementById('imgPreviewImg').src = item.imageUrl;
         document.getElementById('imgPreview').style.display = 'flex';
         document.getElementById('imgPreview').style.alignItems = 'center';
-        pendingImageBase64 = item.imageUrl; // keep existing unless replaced
+        existingImageUrl = item.imageUrl; // keep existing unless replaced or cleared
       }
     } else {
       document.getElementById('fName').value = '';
@@ -370,7 +370,6 @@
     const name = document.getElementById('fName').value.trim();
     const price = parseFloat(document.getElementById('fPrice').value);
     const category = document.getElementById('fCategory').value.trim() || 'General';
-    const imageUrl = pendingImageBase64 || '';
 
     modalError.style.display = 'none';
     if (!name) { modalError.textContent = 'Product name is required.'; modalError.style.display = 'block'; return; }
@@ -380,11 +379,26 @@
     try {
       const url = editingId ? `/api/admin/items/${editingId}` : '/api/admin/items';
       const method = editingId ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, price, category, imageUrl }),
-      });
+
+      let res;
+      if (pendingFile) {
+        // Send as multipart/form-data so the server can save the file to /data/uploads/
+        const fd = new FormData();
+        fd.append('name', name);
+        fd.append('price', String(price));
+        fd.append('category', category);
+        fd.append('image', pendingFile);
+        res = await fetch(url, { method, body: fd });
+      } else {
+        // No new file — send JSON with the existing imageUrl (or empty string)
+        const imageUrl = existingImageUrl || '';
+        res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, price, category, imageUrl }),
+        });
+      }
+
       if (res.status === 401) { redirect401(); return; }
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));

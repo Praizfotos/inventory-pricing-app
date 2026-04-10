@@ -1,0 +1,32 @@
+{
+  "name": "inventory-pricing-app",
+  "version": "1.0.0",
+  "description": "Lightweight inventory price lookup and management system",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "vitest --run"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^9.4.3",
+    "cookie-session": "^2.1.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/cookie-session": "^2.0.49",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.5",
+    "fast-check": "^3.15.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  }
+}

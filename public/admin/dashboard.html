@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f3f4f6;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 1rem;
+    }
+
+    .add-form {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    label {
+      font-size: 0.875rem;
+      color: #374151;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: #6366f1;
+    }
+
+    input.inline-edit {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-primary {
+      background: #6366f1;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #4f46e5; }
+    .btn-primary:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .btn-secondary:hover { background: #d1d5db; }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    .btn-danger:hover { background: #fecaca; }
+
+    .btn-logout {
+      background: transparent;
+      color: #6b7280;
+      border: 1px solid #d1d5db;
+      font-size: 0.875rem;
+      padding: 0.4rem 0.875rem;
+    }
+    .btn-logout:hover { background: #f3f4f6; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 0.625rem 0.75rem;
+      border-bottom: 2px solid #e5e7eb;
+      color: #6b7280;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody td {
+      padding: 0.625rem 0.75rem;
+      color: #111;
+      vertical-align: middle;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .error {
+      font-size: 0.875rem;
+      color: #dc2626;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .table-error {
+      margin-top: 0.75rem;
+    }
+
+    .empty-row td {
+      color: #9ca3af;
+      font-style: italic;
+      text-align: center;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Admin Dashboard</h1>
+      <button class="btn-logout" id="logoutBtn">Logout</button>
+    </header>
+
+    <!-- Add Item -->
+    <div class="card">
+      <h2>Add Item</h2>
+      <div class="add-form">
+        <div class="form-group">
+          <label for="newName">Item Name</label>
+          <input type="text" id="newName" placeholder="e.g. Widget A" />
+        </div>
+        <div class="form-group">
+          <label for="newPrice">Price</label>
+          <input type="number" id="newPrice" placeholder="0.00" min="0.01" step="0.01" />
+        </div>
+        <button class="btn-primary" id="addBtn">Add</button>
+      </div>
+      <p class="error" id="addError"></p>
+    </div>
+
+    <!-- Items Table -->
+    <div class="card">
+      <h2>Items</h2>
+      <table id="itemsTable">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody">
+          <tr class="empty-row"><td colspan="3">Loading…</td></tr>
+        </tbody>
+      </table>
+      <p class="error table-error" id="tableError"></p>
+    </div>
+  </div>
+
+  <script>
+    const itemsBody = document.getElementById('itemsBody');
+    const tableError = document.getElementById('tableError');
+    const addError = document.getElementById('addError');
+    const addBtn = document.getElementById('addBtn');
+    const newName = document.getElementById('newName');
+    const newPrice = document.getElementById('newPrice');
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+    }
+
+    function showTableError(msg) {
+      tableError.textContent = msg;
+      tableError.style.display = 'block';
+    }
+
+    function hideTableError() {
+      tableError.style.display = 'none';
+    }
+
+    function showAddError(msg) {
+      addError.textContent = msg;
+      addError.style.display = 'block';
+    }
+
+    function hideAddError() {
+      addError.style.display = 'none';
+    }
+
+    async function loadItems() {
+      hideTableError();
+      try {
+        const res = await fetch('/api/items');
+        if (res.status === 401) {
+          window.location.href = '/admin/index.html';
+          return;
+        }
+        if (!res.ok) {
+          showTableError('Failed to load items.');
+          return;
+        }
+        const items = await res.json();
+        renderItems(items);
+      } catch {
+        showTableError('Network error. Could not load items.');
+      }
+    }
+
+    function renderItems(items) {
+      if (items.length === 0) {
+        itemsBody.innerHTML = '<tr class="empty-row"><td colspan="3">No items yet.</td></tr>';
+        return;
+      }
+      itemsBody.innerHTML = '';
+      items.forEach(item => itemsBody.appendChild(buildRow(item)));
+    }
+
+    function buildRow(item) {
+      const tr = document.createElement('tr');
+      tr.dataset.id = item.id;
+
+      const nameTd = document.createElement('td');
+      nameTd.textContent = item.name;
+
+      const priceTd = document.createElement('td');
+      priceTd.textContent = formatCurrency(item.price);
+
+      const actionsTd = document.createElement('td');
+      actionsTd.className = 'actions';
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.className = 'btn-secondary';
+      editBtn.addEventListener('click', () => enterEditMode(tr, item, nameTd, priceTd, actionsTd));
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.className = 'btn-danger';
+      deleteBtn.addEventListener('click', () => deleteItem(item.id, tr));
+
+      actionsTd.appendChild(editBtn);
+      actionsTd.appendChild(deleteBtn);
+
+      tr.appendChild(nameTd);
+      tr.appendChild(priceTd);
+      tr.appendChild(actionsTd);
+
+      return tr;
+    }
+
+    function enterEditMode(tr, item, nameTd, priceTd, actionsTd) {
+      // Name input
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.className = 'inline-edit';
+      nameInput.value = item.name;
+
+      // Price input
+      const priceInput = document.createElement('input');
+      priceInput.type = 'number';
+      priceInput.className = 'inline-edit';
+      priceInput.value = item.price;
+      priceInput.min = '0.01';
+      priceInput.step = '0.01';
+
+      nameTd.textContent = '';
+      nameTd.appendChild(nameInput);
+
+      priceTd.textContent = '';
+      priceTd.appendChild(priceInput);
+
+      // Error cell
+      let errorP = tr.querySelector('.row-error');
+      if (!errorP) {
+        errorP = document.createElement('p');
+        errorP.className = 'error row-error';
+        errorP.style.marginTop = '0.25rem';
+        // Append after the row via a detail row
+      }
+
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = 'Save';
+      saveBtn.className = 'btn-primary';
+      saveBtn.addEventListener('click', () => saveEdit(tr, item, nameInput, priceInput, nameTd, priceTd, actionsTd, errorP));
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.className = 'btn-secondary';
+      cancelBtn.addEventListener('click', () => {
+        // Restore original row
+        const fresh = buildRow(item);
+        tr.replaceWith(fresh);
+      });
+
+      actionsTd.innerHTML = '';
+      actionsTd.appendChild(saveBtn);
+      actionsTd.appendChild(cancelBtn);
+      actionsTd.appendChild(errorP);
+    }
+
+    async function saveEdit(tr, item, nameInput, priceInput, nameTd, priceTd, actionsTd, errorP) {
+      const name = nameInput.value.trim();
+      const price = parseFloat(priceInput.value);
+
+      errorP.style.display = 'none';
+
+      if (!name) {
+        errorP.textContent = 'Name cannot be empty.';
+        errorP.style.display = 'block';
+        return;
+      }
+      if (isNaN(price) || price <= 0) {
+        errorP.textContent = 'Price must be greater than 0.';
+        errorP.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/admin/items/${item.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, price }),
+        });
+
+        if (res.status === 401) {
+          window.location.href = '/admin/index.html';
+          return;
+        }
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          errorP.textContent = data.error || 'Failed to save changes.';
+          errorP.style.display = 'block';
+          return;
+        }
+
+        const updated = await res.json();
+        const fresh = buildRow(updated);
+        tr.replaceWith(fresh);
+      } catch {
+        errorP.textContent = 'Network error. Could not save changes.';
+        errorP.style.display = 'block';
+      }
+    }
+
+    async function deleteItem(id, tr) {
+      if (!confirm('Delete this item?')) return;
+
+      try {
+        const res = await fetch(`/api/admin/items/${id}`, { method: 'DELETE' });
+
+        if (res.status === 401) {
+          window.location.href = '/admin/index.html';
+          return;
+        }
+        if (!res.ok) {
+          showTableError('Failed to delete item.');
+          return;
+        }
+
+        tr.remove();
+        if (itemsBody.children.length === 0) {
+          itemsBody.innerHTML = '<tr class="empty-row"><td colspan="3">No items yet.</td></tr>';
+        }
+      } catch {
+        showTableError('Network error. Could not delete item.');
+      }
+    }
+
+    async function addItem() {
+      hideAddError();
+      const name = newName.value.trim();
+      const price = parseFloat(newPrice.value);
+
+      if (!name) {
+        showAddError('Name cannot be empty.');
+        return;
+      }
+      if (isNaN(price) || price <= 0) {
+        showAddError('Price must be greater than 0.');
+        return;
+      }
+
+      addBtn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, price }),
+        });
+
+        if (res.status === 401) {
+          window.location.href = '/admin/index.html';
+          return;
+        }
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          showAddError(data.error || 'Failed to add item.');
+          return;
+        }
+
+        const item = await res.json();
+        // Remove empty-state row if present
+        const emptyRow = itemsBody.querySelector('.empty-row');
+        if (emptyRow) emptyRow.remove();
+
+        itemsBody.appendChild(buildRow(item));
+        newName.value = '';
+        newPrice.value = '';
+        newName.focus();
+      } catch {
+        showAddError('Network error. Could not add item.');
+      } finally {
+        addBtn.disabled = false;
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/api/admin/logout', { method: 'POST' });
+      } finally {
+        window.location.href = '/admin/index.html';
+      }
+    });
+
+    addBtn.addEventListener('click', addItem);
+    newPrice.addEventListener('keydown', (e) => { if (e.key === 'Enter') addItem(); });
+
+    loadItems();
+  </script>
+</body>
+</html>

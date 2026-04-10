@@ -1,36 +1,34 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { Pool } from 'pg';
 
-const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'inventory.db');
+let pool: Pool;
 
-let db: Database.Database;
-
-export function getDb(): Database.Database {
-  if (!db) {
+export function getDb(): Pool {
+  if (!pool) {
     throw new Error('Database not initialized. Call initDb() first.');
   }
-  return db;
+  return pool;
 }
 
-export function initDb(dbPath: string = DB_PATH): Database.Database {
-  db = new Database(dbPath);
+export async function initDb(): Promise<void> {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL?.includes('railway') || process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
+  });
 
-  db.exec(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS items (
-      id        INTEGER PRIMARY KEY AUTOINCREMENT,
+      id        SERIAL PRIMARY KEY,
       name      TEXT    NOT NULL UNIQUE,
-      price     REAL    NOT NULL,
+      price     NUMERIC(10,2) NOT NULL,
       category  TEXT    NOT NULL DEFAULT 'General',
-      imageUrl  TEXT    NOT NULL DEFAULT '',
-      updatedAt TEXT    NOT NULL DEFAULT (datetime('now'))
+      "imageUrl" TEXT   NOT NULL DEFAULT '',
+      "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
-
-  return db;
 }
 
-export function closeDb(): void {
-  if (db) {
-    db.close();
-  }
+export async function closeDb(): Promise<void> {
+  if (pool) await pool.end();
 }

@@ -2,11 +2,11 @@ import express, { Request, Response, NextFunction } from 'express';
 import cookieSession from 'cookie-session';
 import bcrypt from 'bcrypt';
 import path from 'path';
-import { initDb, getDb } from './db';
+import { getDb } from './db';
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // allow base64 images
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use(
@@ -17,7 +17,6 @@ app.use(
   })
 );
 
-// Admin auth middleware — applies to all /api/admin/* except login
 function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   if (req.session && req.session['admin'] === true) {
     next();
@@ -32,26 +31,28 @@ app.use('/api/admin', (req: Request, res: Response, next: NextFunction) => {
 });
 
 // GET /api/items?search=&category=
-app.get('/api/items', (req: Request, res: Response) => {
+app.get('/api/items', async (req: Request, res: Response) => {
   const db = getDb();
   const search = (req.query['search'] as string || '').trim();
   const category = (req.query['category'] as string || '').trim();
 
-  let query = 'SELECT id, name, price, category, imageUrl, updatedAt FROM items WHERE 1=1';
+  let query = `SELECT id, name, price, category, "imageUrl", "updatedAt" FROM items WHERE 1=1`;
   const params: string[] = [];
+  let i = 1;
 
-  if (search) { query += ' AND name LIKE ?'; params.push(`%${search}%`); }
-  if (category) { query += ' AND category = ?'; params.push(category); }
+  if (search) { query += ` AND name ILIKE $${i++}`; params.push(`%${search}%`); }
+  if (category) { query += ` AND category = $${i++}`; params.push(category); }
   query += ' ORDER BY category, name';
 
-  res.json(db.prepare(query).all(...params));
+  const result = await db.query(query, params);
+  res.json(result.rows);
 });
 
 // GET /api/categories
-app.get('/api/categories', (req: Request, res: Response) => {
+app.get('/api/categories', async (_req: Request, res: Response) => {
   const db = getDb();
-  const rows = db.prepare('SELECT DISTINCT category FROM items ORDER BY category').all() as { category: string }[];
-  res.json(rows.map(r => r.category));
+  const result = await db.query('SELECT DISTINCT category FROM items ORDER BY category');
+  res.json(result.rows.map((r: { category: string }) => r.category));
 });
 
 // POST /api/admin/login
@@ -65,19 +66,17 @@ app.post('/api/admin/login', async (req: Request, res: Response) => {
 
   const hash = (process.env.ADMIN_PASSWORD_HASH || '').trim();
 
-  // Fallback: if no hash set, allow login with password "admin"
   if (!hash) {
     if (password === 'admin') {
       req.session!['admin'] = true;
       res.status(200).json({ ok: true });
     } else {
-      res.status(401).json({ error: 'No admin password configured. Use "admin" as password or set ADMIN_PASSWORD_HASH.' });
+      res.status(401).json({ error: 'No admin password configured. Use "admin" as temporary password.' });
     }
     return;
   }
 
   const match = await bcrypt.compare(password, hash);
-
   if (!match) {
     res.status(401).json({ error: 'Invalid credentials' });
     return;
@@ -94,7 +93,7 @@ app.post('/api/admin/logout', (req: Request, res: Response) => {
 });
 
 // POST /api/admin/items
-app.post('/api/admin/items', (req: Request, res: Response) => {
+app.post('/api/admin/items', async (req: Request, res: Response) => {
   const { name, price, category, imageUrl } = req.body as { name?: string; price?: number; category?: string; imageUrl?: string };
 
   if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -107,17 +106,17 @@ app.post('/api/admin/items', (req: Request, res: Response) => {
   }
 
   const db = getDb();
-  const item = db.prepare(
-    `INSERT INTO items (name, price, category, imageUrl, updatedAt)
-     VALUES (?, ?, ?, ?, datetime('now'))
-     RETURNING id, name, price, category, imageUrl, updatedAt`
-  ).get(name.trim(), price, (category || 'General').trim(), (imageUrl || '').trim());
-
-  res.status(201).json(item);
+  const result = await db.query(
+    `INSERT INTO items (name, price, category, "imageUrl", "updatedAt")
+     VALUES ($1, $2, $3, $4, NOW())
+     RETURNING id, name, price, category, "imageUrl", "updatedAt"`,
+    [name.trim(), price, (category || 'General').trim(), (imageUrl || '').trim()]
+  );
+  res.status(201).json(result.rows[0]);
 });
 
 // PUT /api/admin/items/:id
-app.put('/api/admin/items/:id', (req: Request, res: Response) => {
+app.put('/api/admin/items/:id', async (req: Request, res: Response) => {
   const id = Number(req.params['id']);
   const { name, price, category, imageUrl } = req.body as { name?: string; price?: number; category?: string; imageUrl?: string };
 
@@ -131,41 +130,35 @@ app.put('/api/admin/items/:id', (req: Request, res: Response) => {
   }
 
   const db = getDb();
-  const existing = db.prepare('SELECT * FROM items WHERE id = ?').get(id);
-  if (!existing) { res.status(404).json({ error: 'Item not found' }); return; }
+  const existing = await db.query('SELECT id FROM items WHERE id = $1', [id]);
+  if (!existing.rows.length) { res.status(404).json({ error: 'Item not found' }); return; }
 
   const updates: string[] = [];
   const params: (string | number)[] = [];
+  let i = 1;
 
-  if (name !== undefined) { updates.push('name = ?'); params.push(name.trim()); }
-  if (price !== undefined) { updates.push('price = ?'); params.push(price); }
-  if (category !== undefined) { updates.push('category = ?'); params.push(category.trim()); }
-  if (imageUrl !== undefined) { updates.push('imageUrl = ?'); params.push(imageUrl.trim()); }
-  updates.push("updatedAt = datetime('now')");
+  if (name !== undefined) { updates.push(`name = $${i++}`); params.push(name.trim()); }
+  if (price !== undefined) { updates.push(`price = $${i++}`); params.push(price); }
+  if (category !== undefined) { updates.push(`category = $${i++}`); params.push(category.trim()); }
+  if (imageUrl !== undefined) { updates.push(`"imageUrl" = $${i++}`); params.push(imageUrl.trim()); }
+  updates.push(`"updatedAt" = NOW()`);
   params.push(id);
 
-  db.prepare(`UPDATE items SET ${updates.join(', ')} WHERE id = ?`).run(...params);
-  res.json(db.prepare('SELECT id, name, price, category, imageUrl, updatedAt FROM items WHERE id = ?').get(id));
+  const result = await db.query(
+    `UPDATE items SET ${updates.join(', ')} WHERE id = $${i} RETURNING id, name, price, category, "imageUrl", "updatedAt"`,
+    params
+  );
+  res.json(result.rows[0]);
 });
 
 // DELETE /api/admin/items/:id
-app.delete('/api/admin/items/:id', (req: Request, res: Response) => {
+app.delete('/api/admin/items/:id', async (req: Request, res: Response) => {
   const id = Number(req.params['id']);
   const db = getDb();
-
-  const existing = db.prepare('SELECT id FROM items WHERE id = ?').get(id);
-  if (!existing) {
-    res.status(404).json({ error: 'Item not found' });
-    return;
-  }
-
-  db.prepare('DELETE FROM items WHERE id = ?').run(id);
+  const existing = await db.query('SELECT id FROM items WHERE id = $1', [id]);
+  if (!existing.rows.length) { res.status(404).json({ error: 'Item not found' }); return; }
+  await db.query('DELETE FROM items WHERE id = $1', [id]);
   res.status(204).send();
 });
-
-export function createApp() {
-  initDb();
-  return app;
-}
 
 export default app;

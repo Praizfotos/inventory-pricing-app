@@ -31,23 +31,27 @@ app.use('/api/admin', (req: Request, res: Response, next: NextFunction) => {
   requireAdmin(req, res, next);
 });
 
-// GET /api/items?search=
+// GET /api/items?search=&category=
 app.get('/api/items', (req: Request, res: Response) => {
   const db = getDb();
-  const search = req.query['search'] as string | undefined;
+  const search = (req.query['search'] as string || '').trim();
+  const category = (req.query['category'] as string || '').trim();
 
-  let rows;
-  if (search) {
-    rows = db
-      .prepare('SELECT id, name, price, updatedAt FROM items WHERE name LIKE ? ORDER BY name')
-      .all(`%${search}%`);
-  } else {
-    rows = db
-      .prepare('SELECT id, name, price, updatedAt FROM items ORDER BY name')
-      .all();
-  }
+  let query = 'SELECT id, name, price, category, imageUrl, updatedAt FROM items WHERE 1=1';
+  const params: string[] = [];
 
-  res.json(rows);
+  if (search) { query += ' AND name LIKE ?'; params.push(`%${search}%`); }
+  if (category) { query += ' AND category = ?'; params.push(category); }
+  query += ' ORDER BY category, name';
+
+  res.json(db.prepare(query).all(...params));
+});
+
+// GET /api/categories
+app.get('/api/categories', (req: Request, res: Response) => {
+  const db = getDb();
+  const rows = db.prepare('SELECT DISTINCT category FROM items ORDER BY category').all() as { category: string }[];
+  res.json(rows.map(r => r.category));
 });
 
 // POST /api/admin/login
@@ -79,7 +83,7 @@ app.post('/api/admin/logout', (req: Request, res: Response) => {
 
 // POST /api/admin/items
 app.post('/api/admin/items', (req: Request, res: Response) => {
-  const { name, price } = req.body as { name?: string; price?: number };
+  const { name, price, category, imageUrl } = req.body as { name?: string; price?: number; category?: string; imageUrl?: string };
 
   if (!name || typeof name !== 'string' || name.trim() === '') {
     res.status(400).json({ error: 'name must be a non-empty string' });
@@ -91,10 +95,11 @@ app.post('/api/admin/items', (req: Request, res: Response) => {
   }
 
   const db = getDb();
-  const stmt = db.prepare(
-    'INSERT INTO items (name, price, updatedAt) VALUES (?, ?, datetime(\'now\')) RETURNING id, name, price, updatedAt'
-  );
-  const item = stmt.get(name.trim(), price);
+  const item = db.prepare(
+    `INSERT INTO items (name, price, category, imageUrl, updatedAt)
+     VALUES (?, ?, ?, ?, datetime('now'))
+     RETURNING id, name, price, category, imageUrl, updatedAt`
+  ).get(name.trim(), price, (category || 'General').trim(), (imageUrl || '').trim());
 
   res.status(201).json(item);
 });
@@ -102,7 +107,7 @@ app.post('/api/admin/items', (req: Request, res: Response) => {
 // PUT /api/admin/items/:id
 app.put('/api/admin/items/:id', (req: Request, res: Response) => {
   const id = Number(req.params['id']);
-  const { name, price } = req.body as { name?: string; price?: number };
+  const { name, price, category, imageUrl } = req.body as { name?: string; price?: number; category?: string; imageUrl?: string };
 
   if (name !== undefined && (typeof name !== 'string' || name.trim() === '')) {
     res.status(400).json({ error: 'name must be a non-empty string' });
@@ -115,32 +120,20 @@ app.put('/api/admin/items/:id', (req: Request, res: Response) => {
 
   const db = getDb();
   const existing = db.prepare('SELECT * FROM items WHERE id = ?').get(id);
-  if (!existing) {
-    res.status(404).json({ error: 'Item not found' });
-    return;
-  }
+  if (!existing) { res.status(404).json({ error: 'Item not found' }); return; }
 
   const updates: string[] = [];
   const params: (string | number)[] = [];
 
-  if (name !== undefined) {
-    updates.push('name = ?');
-    params.push(name.trim());
-  }
-  if (price !== undefined) {
-    updates.push('price = ?');
-    params.push(price);
-  }
+  if (name !== undefined) { updates.push('name = ?'); params.push(name.trim()); }
+  if (price !== undefined) { updates.push('price = ?'); params.push(price); }
+  if (category !== undefined) { updates.push('category = ?'); params.push(category.trim()); }
+  if (imageUrl !== undefined) { updates.push('imageUrl = ?'); params.push(imageUrl.trim()); }
   updates.push("updatedAt = datetime('now')");
   params.push(id);
 
   db.prepare(`UPDATE items SET ${updates.join(', ')} WHERE id = ?`).run(...params);
-
-  const updated = db
-    .prepare('SELECT id, name, price, updatedAt FROM items WHERE id = ?')
-    .get(id);
-
-  res.json(updated);
+  res.json(db.prepare('SELECT id, name, price, category, imageUrl, updatedAt FROM items WHERE id = ?').get(id));
 });
 
 // DELETE /api/admin/items/:id

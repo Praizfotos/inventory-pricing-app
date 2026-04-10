@@ -3,167 +3,245 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Price Lookup</title>
+  <title>Price Catalog</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f5f5f5;
-      color: #222;
-      min-height: 100vh;
-      padding: 2rem 1rem;
+    :root {
+      --green: #10b981;
+      --green-dark: #059669;
+      --green-light: #d1fae5;
+      --sidebar: #fff;
+      --bg: #f0fdf4;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --card: #fff;
+      --radius: 12px;
     }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-    .container {
-      max-width: 640px;
-      margin: 0 auto;
-    }
+    /* SIDEBAR */
+    .sidebar { width: 220px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+    .logo-area { padding: 0 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .logo-area img#logoImg { width: 100%; max-height: 48px; object-fit: contain; display: none; }
+    .logo-area .logo-text { font-size: 1.25rem; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
+    .logo-area .logo-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    nav { padding: 1rem 0.75rem; flex: 1; }
+    .nav-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 0.5rem; margin-bottom: 0.5rem; margin-top: 1rem; }
+    .nav-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.55rem 0.75rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; color: var(--muted); transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: var(--green-light); color: var(--green-dark); }
+    .nav-item.active { background: var(--green); color: #fff; font-weight: 600; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); }
 
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-      color: #111;
-    }
+    /* MAIN */
+    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-    input[type="search"] {
-      width: 100%;
-      padding: 0.65rem 0.9rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      outline: none;
-      background: #fff;
-      margin-bottom: 1.25rem;
-      transition: border-color 0.15s;
-    }
+    /* TOPBAR */
+    .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 50; }
+    .topbar h1 { font-size: 1.1rem; font-weight: 700; color: var(--text); flex-shrink: 0; }
+    .search-wrap { flex: 1; max-width: 480px; position: relative; }
+    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--muted); width: 16px; height: 16px; }
+    .search-wrap input { width: 100%; padding: 0.5rem 0.75rem 0.5rem 2.25rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; outline: none; background: var(--bg); transition: border-color 0.15s; }
+    .search-wrap input:focus { border-color: var(--green); background: #fff; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+    .badge { background: var(--green); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 20px; }
 
-    input[type="search"]:focus {
-      border-color: #555;
-    }
+    /* CONTENT */
+    .content { padding: 1.5rem; flex: 1; }
+    .section-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .count-badge { font-size: 0.75rem; font-weight: 500; color: var(--muted); background: var(--border); padding: 0.2rem 0.6rem; border-radius: 20px; }
 
-    .status {
-      text-align: center;
-      color: #666;
-      font-size: 0.95rem;
-      padding: 2rem 0;
-    }
+    /* CATEGORY PILLS */
+    .category-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .cat-pill { padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: #fff; color: var(--muted); transition: all 0.15s; }
+    .cat-pill:hover { border-color: var(--green); color: var(--green); }
+    .cat-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
+    /* PRODUCT GRID */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: box-shadow 0.15s, transform 0.15s; cursor: default; }
+    .card:hover { box-shadow: 0 4px 20px rgba(16,185,129,0.12); transform: translateY(-2px); }
+    .card-img { width: 100%; height: 140px; object-fit: cover; background: var(--green-light); display: flex; align-items: center; justify-content: center; }
+    .card-img img { width: 100%; height: 140px; object-fit: cover; }
+    .card-img .no-img { font-size: 2.5rem; }
+    .card-body { padding: 0.875rem; }
+    .card-cat { font-size: 0.7rem; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+    .card-name { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; line-height: 1.3; }
+    .card-price { font-size: 1.25rem; font-weight: 700; color: var(--green-dark); }
+    .card-updated { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
 
-    thead {
-      background: #f0f0f0;
-    }
+    /* EMPTY / LOADING */
+    .state { text-align: center; padding: 4rem 1rem; color: var(--muted); }
+    .state svg { width: 48px; height: 48px; margin: 0 auto 1rem; display: block; opacity: 0.3; }
+    .state p { font-size: 0.95rem; }
 
-    th {
-      text-align: left;
-      padding: 0.65rem 1rem;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #555;
-    }
-
-    th:last-child, td:last-child {
-      text-align: right;
-    }
-
-    td {
-      padding: 0.7rem 1rem;
-      font-size: 0.95rem;
-      border-top: 1px solid #eee;
-    }
-
-    tr:first-child td {
-      border-top: none;
-    }
-
-    tbody tr:hover {
-      background: #fafafa;
+    /* MOBILE */
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; padding: 0.75rem; border-right: none; border-bottom: 1px solid var(--border); }
+      .logo-area { border-bottom: none; padding: 0 0.75rem 0 0; }
+      nav { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.25rem; padding: 0; }
+      .nav-label { display: none; }
+      .main { margin-left: 0; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Price Lookup</h1>
-    <input type="search" id="search" placeholder="Search items..." autocomplete="off" />
-    <div id="output"></div>
+
+<aside class="sidebar">
+  <div class="logo-area">
+    <img id="logoImg" src="" alt="Logo" />
+    <div class="logo-text" id="logoText">PriceCat</div>
+    <div class="logo-sub">Price Catalog</div>
+  </div>
+  <nav>
+    <div class="nav-label">Menu</div>
+    <button class="nav-item active" onclick="filterCategory('')" id="navAll">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      All Products
+    </button>
+    <div id="sidebarCats"></div>
+  </nav>
+  <div class="sidebar-footer">Associates View</div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <h1 id="pageTitle">All Products</h1>
+    <div class="search-wrap">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="search" placeholder="Search products..." autocomplete="off" />
+    </div>
+    <div class="topbar-right">
+      <span class="badge" id="countBadge">0 items</span>
+    </div>
   </div>
 
-  <script>
-    const searchEl = document.getElementById('search');
-    const output = document.getElementById('output');
-    let debounceTimer = null;
+  <div class="content">
+    <div class="category-bar" id="categoryBar"></div>
+    <div class="section-title">
+      <span id="sectionLabel">Products</span>
+    </div>
+    <div id="grid" class="grid"></div>
+  </div>
+</div>
 
-    function formatPrice(value) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+<script>
+  let allItems = [];
+  let activeCategory = '';
+  let searchTerm = '';
+  let debounceTimer = null;
+
+  const grid = document.getElementById('grid');
+  const countBadge = document.getElementById('countBadge');
+  const categoryBar = document.getElementById('categoryBar');
+  const sidebarCats = document.getElementById('sidebarCats');
+  const pageTitle = document.getElementById('pageTitle');
+  const sectionLabel = document.getElementById('sectionLabel');
+
+  function fmt(v) {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
+  }
+
+  function timeAgo(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  }
+
+  function isRecent(dateStr) {
+    return Date.now() - new Date(dateStr).getTime() < 24 * 60 * 60 * 1000;
+  }
+
+  function renderGrid(items) {
+    countBadge.textContent = items.length + ' item' + (items.length !== 1 ? 's' : '');
+    if (!items.length) {
+      grid.innerHTML = `<div class="state" style="grid-column:1/-1">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+        <p>No products found</p></div>`;
+      return;
     }
+    grid.innerHTML = items.map(item => `
+      <div class="card">
+        <div class="card-img">
+          ${item.imageUrl
+            ? `<img src="${item.imageUrl}" alt="${item.name}" onerror="this.parentElement.innerHTML='<div class=no-img>📦</div>'" />`
+            : `<div class="no-img">📦</div>`}
+        </div>
+        <div class="card-body">
+          <div class="card-cat">${item.category || 'General'}</div>
+          <div class="card-name">${item.name}</div>
+          <div class="card-price">${fmt(item.price)}</div>
+          <div class="card-updated" style="color:${isRecent(item.updatedAt) ? '#10b981' : ''}">
+            ${isRecent(item.updatedAt) ? '🟢 ' : ''}Updated ${timeAgo(item.updatedAt)}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
 
-    function renderLoading() {
-      output.innerHTML = '<p class="status">Loading...</p>';
-    }
+  function applyFilters() {
+    let items = allItems;
+    if (activeCategory) items = items.filter(i => i.category === activeCategory);
+    if (searchTerm) items = items.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    renderGrid(items);
+  }
 
-    function renderEmpty() {
-      output.innerHTML = '<p class="status">No items found.</p>';
-    }
+  function buildCategoryUI(items) {
+    const cats = [...new Set(items.map(i => i.category || 'General'))].sort();
 
-    function renderItems(items) {
-      if (!items.length) { renderEmpty(); return; }
+    // Top pills
+    categoryBar.innerHTML = `<span class="cat-pill active" data-cat="" onclick="filterCategory('')">All</span>` +
+      cats.map(c => `<span class="cat-pill" data-cat="${c}" onclick="filterCategory('${c}')">${c}</span>`).join('');
 
-      const rows = items.map(item => `
-        <tr>
-          <td>${escapeHtml(item.name)}</td>
-          <td>${formatPrice(item.price)}</td>
-        </tr>
-      `).join('');
+    // Sidebar
+    sidebarCats.innerHTML = cats.map(c => `
+      <button class="nav-item" data-cat="${c}" onclick="filterCategory('${c}')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        ${c}
+      </button>`).join('');
+  }
 
-      output.innerHTML = `
-        <table>
-          <thead>
-            <tr><th>Item Name</th><th>Price</th></tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
+  function filterCategory(cat) {
+    activeCategory = cat;
+    pageTitle.textContent = cat || 'All Products';
+    sectionLabel.textContent = cat || 'All Products';
 
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    async function fetchItems(query) {
-      renderLoading();
-      try {
-        const url = '/api/items' + (query ? '?search=' + encodeURIComponent(query) : '');
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Request failed');
-        const items = await res.json();
-        renderItems(items);
-      } catch {
-        output.innerHTML = '<p class="status">Something went wrong. Please try again.</p>';
-      }
-    }
-
-    searchEl.addEventListener('input', () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => fetchItems(searchEl.value.trim()), 300);
+    // Update pills
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+    document.querySelectorAll('.nav-item').forEach(n => {
+      const d = n.dataset.cat;
+      n.classList.toggle('active', d === undefined ? cat === '' : d === cat);
     });
+    document.getElementById('navAll').classList.toggle('active', cat === '');
 
-    // Initial load
-    fetchItems('');
-  </script>
+    applyFilters();
+  }
+
+  async function loadItems() {
+    grid.innerHTML = `<div class="state" style="grid-column:1/-1"><p>Loading...</p></div>`;
+    try {
+      const res = await fetch('/api/items');
+      if (!res.ok) throw new Error();
+      allItems = await res.json();
+      buildCategoryUI(allItems);
+      applyFilters();
+    } catch {
+      grid.innerHTML = `<div class="state" style="grid-column:1/-1"><p>Could not load products.</p></div>`;
+    }
+  }
+
+  document.getElementById('search').addEventListener('input', e => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => { searchTerm = e.target.value.trim(); applyFilters(); }, 300);
+  });
+
+  loadItems();
+</script>
 </body>
 </html>

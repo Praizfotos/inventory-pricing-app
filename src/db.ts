@@ -20,6 +20,8 @@ export function initDb(dbPath: string = DB_PATH): Database.Database {
       id        INTEGER PRIMARY KEY AUTOINCREMENT,
       name      TEXT    NOT NULL UNIQUE,
       price     REAL    NOT NULL,
+      category  TEXT    NOT NULL DEFAULT 'General',
+      imageUrl  TEXT    NOT NULL DEFAULT '',
       updatedAt TEXT    NOT NULL DEFAULT (datetime('now'))
     )
   `);

@@ -23,10 +23,12 @@
     body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
     /* SIDEBAR */
-    .sidebar { width: 220px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s; }
-    .logo-area { padding: 0 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .sidebar { width: 220px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 200; transition: transform 0.3s ease; }
+    .logo-area { padding: 0 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .logo-text { font-size: 1.25rem; font-weight: 700; color: var(--green); }
     .logo-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .sidebar-close { display: none; background: none; border: none; cursor: pointer; padding: 0.25rem; color: var(--muted); border-radius: 6px; }
+    .sidebar-close:hover { background: var(--border); }
     nav { padding: 1rem 0.75rem; flex: 1; overflow-y: auto; }
     .nav-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 0.5rem; margin-bottom: 0.5rem; margin-top: 1rem; }
     .nav-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.55rem 0.75rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; color: var(--muted); transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
@@ -34,6 +36,20 @@
     .nav-item.active { background: var(--green); color: #fff; font-weight: 600; }
     .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
     .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); }
+    .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 199; }
+
+    .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 0.25rem; border-radius: 6px; color: var(--text); }
+    .menu-btn:hover { background: var(--border); }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-close { display: flex; align-items: center; justify-content: center; }
+      .sidebar-backdrop.open { display: block; }
+      .menu-btn { display: flex; align-items: center; justify-content: center; }
+      .main { margin-left: 0; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
 
     /* MAIN */
     .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
@@ -107,19 +123,7 @@
     /* TOAST */
     .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #111; color: #fff; padding: 0.75rem 1.5rem; border-radius: 10px; font-size: 0.875rem; font-weight: 500; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
-
     .state { text-align: center; padding: 4rem 1rem; color: var(--muted); grid-column: 1/-1; }
-
-    @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.open { transform: translateX(0); }
-      .sidebar-backdrop { display: block; }
-      .main { margin-left: 0; }
-      .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-      .overlay { align-items: flex-end; }
-    }
-    .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; }
-    .sidebar-backdrop.open { display: block; }
   </style>
 </head>
 <body>
@@ -127,8 +131,13 @@
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 <aside class="sidebar" id="sidebar">
   <div class="logo-area">
-    <div class="logo-text">PriceCat</div>
-    <div class="logo-sub">Price & Stock Catalog</div>
+    <div>
+      <div class="logo-text">PriceCat</div>
+      <div class="logo-sub">Price & Stock Catalog</div>
+    </div>
+    <button class="sidebar-close" onclick="closeSidebar()" aria-label="Close menu">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
   </div>
   <nav>
     <div class="nav-label">Menu</div>
@@ -145,7 +154,7 @@
 
 <div class="main">
   <div class="topbar">
-    <button onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;padding:0.25rem;" id="menuBtn">
+    <button onclick="toggleSidebar()" class="menu-btn" id="menuBtn" aria-label="Open menu">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
     </button>
     <h1 id="pageTitle">All Products</h1>
@@ -360,14 +369,6 @@
   document.getElementById('search').addEventListener('input', e => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => { searchTerm = e.target.value.trim(); applyFilters(); }, 300);
-  });
-
-  // Mobile menu button
-  if (window.innerWidth <= 768) document.getElementById('menuBtn').style.display = 'block';
-  window.addEventListener('resize', () => {
-    const isMobile = window.innerWidth <= 768;
-    document.getElementById('menuBtn').style.display = isMobile ? 'block' : 'none';
-    if (!isMobile) closeSidebar();
   });
 
   // Register service worker for offline support

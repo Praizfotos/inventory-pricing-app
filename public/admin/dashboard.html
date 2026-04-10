@@ -270,7 +270,7 @@
     document.getElementById('imgPreviewImg').src = '';
   }
 
-  function fmt(v) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v); }
+  function fmt(v) { return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(v); }
   function timeAgo(d) {
     const diff = Date.now() - new Date(d).getTime();
     const m = Math.floor(diff / 60000);

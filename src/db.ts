@@ -19,12 +19,14 @@ export async function initDb(): Promise<void> {
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS items (
-      id        SERIAL PRIMARY KEY,
-      name      TEXT    NOT NULL UNIQUE,
-      price     NUMERIC(10,2) NOT NULL,
-      category  TEXT    NOT NULL DEFAULT 'General',
-      "imageUrl" TEXT   NOT NULL DEFAULT '',
-      "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      id           SERIAL PRIMARY KEY,
+      name         TEXT    NOT NULL UNIQUE,
+      price        NUMERIC(10,2) NOT NULL,
+      category     TEXT    NOT NULL DEFAULT 'General',
+      "imageUrl"   TEXT    NOT NULL DEFAULT '',
+      total_stock  INTEGER NOT NULL DEFAULT 0,
+      units_sold   INTEGER NOT NULL DEFAULT 0,
+      "updatedAt"  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
 }

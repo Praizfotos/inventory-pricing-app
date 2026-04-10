@@ -7,26 +7,20 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green: #10b981;
-      --green-dark: #059669;
-      --green-light: #d1fae5;
-      --sidebar: #fff;
-      --bg: #f0fdf4;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --card: #fff;
-      --radius: 12px;
+      --green: #10b981; --green-dark: #059669; --green-light: #d1fae5;
+      --yellow: #f59e0b; --yellow-light: #fef3c7;
+      --red: #ef4444; --red-light: #fee2e2;
+      --bg: #f0fdf4; --card: #fff; --text: #111827; --muted: #6b7280;
+      --border: #e5e7eb; --radius: 12px;
     }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
     /* SIDEBAR */
-    .sidebar { width: 220px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+    .sidebar { width: 220px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 1.25rem 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s; }
     .logo-area { padding: 0 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
-    .logo-area img#logoImg { width: 100%; max-height: 48px; object-fit: contain; display: none; }
-    .logo-area .logo-text { font-size: 1.25rem; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
-    .logo-area .logo-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-    nav { padding: 1rem 0.75rem; flex: 1; }
+    .logo-text { font-size: 1.25rem; font-weight: 700; color: var(--green); }
+    .logo-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    nav { padding: 1rem 0.75rem; flex: 1; overflow-y: auto; }
     .nav-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 0.5rem; margin-bottom: 0.5rem; margin-top: 1rem; }
     .nav-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.55rem 0.75rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; color: var(--muted); transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
     .nav-item:hover { background: var(--green-light); color: var(--green-dark); }
@@ -35,81 +29,114 @@
     .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); }
 
     /* MAIN */
-    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
 
     /* TOPBAR */
     .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 50; }
-    .topbar h1 { font-size: 1.1rem; font-weight: 700; color: var(--text); flex-shrink: 0; }
+    .topbar h1 { font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
     .search-wrap { flex: 1; max-width: 480px; position: relative; }
     .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--muted); width: 16px; height: 16px; }
     .search-wrap input { width: 100%; padding: 0.5rem 0.75rem 0.5rem 2.25rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; outline: none; background: var(--bg); transition: border-color 0.15s; }
     .search-wrap input:focus { border-color: var(--green); background: #fff; }
-    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
     .badge { background: var(--green); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 20px; }
 
     /* CONTENT */
     .content { padding: 1.5rem; flex: 1; }
-    .section-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
-    .count-badge { font-size: 0.75rem; font-weight: 500; color: var(--muted); background: var(--border); padding: 0.2rem 0.6rem; border-radius: 20px; }
-
-    /* CATEGORY PILLS */
     .category-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
     .cat-pill { padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: #fff; color: var(--muted); transition: all 0.15s; }
     .cat-pill:hover { border-color: var(--green); color: var(--green); }
     .cat-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
 
-    /* PRODUCT GRID */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: box-shadow 0.15s, transform 0.15s; cursor: default; }
+    /* GRID */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; transition: box-shadow 0.15s, transform 0.15s; }
     .card:hover { box-shadow: 0 4px 20px rgba(16,185,129,0.12); transform: translateY(-2px); }
-    .card-img { width: 100%; height: 140px; object-fit: cover; background: var(--green-light); display: flex; align-items: center; justify-content: center; }
-    .card-img img { width: 100%; height: 140px; object-fit: cover; }
+    .card-img { width: 100%; height: 140px; background: var(--green-light); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
     .card-img .no-img { font-size: 2.5rem; }
+    .status-badge { position: absolute; top: 8px; right: 8px; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 20px; }
+    .status-in { background: var(--green-light); color: var(--green-dark); }
+    .status-low { background: var(--yellow-light); color: #92400e; }
+    .status-out { background: var(--red-light); color: var(--red); }
     .card-body { padding: 0.875rem; }
     .card-cat { font-size: 0.7rem; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
-    .card-name { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; line-height: 1.3; }
-    .card-price { font-size: 1.25rem; font-weight: 700; color: var(--green-dark); }
-    .card-updated { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
+    .card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .card-price { font-size: 1.2rem; font-weight: 700; color: var(--green-dark); margin-bottom: 0.75rem; }
 
-    /* EMPTY / LOADING */
-    .state { text-align: center; padding: 4rem 1rem; color: var(--muted); }
-    .state svg { width: 48px; height: 48px; margin: 0 auto 1rem; display: block; opacity: 0.3; }
-    .state p { font-size: 0.95rem; }
+    /* STOCK BAR */
+    .stock-info { margin-bottom: 0.75rem; }
+    .stock-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .stock-row span:last-child { font-weight: 600; color: var(--text); }
+    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+    .fill-green { background: var(--green); }
+    .fill-yellow { background: var(--yellow); }
+    .fill-red { background: var(--red); }
 
-    /* MOBILE */
+    /* SELL BUTTON */
+    .btn-sell { width: 100%; padding: 0.6rem; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+    .btn-sell:hover { background: var(--green-dark); }
+    .btn-sell:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
+
+    /* SELL MODAL */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; padding: 0; }
+    .overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding: 1.5rem; box-shadow: 0 -4px 30px rgba(0,0,0,0.15); animation: slideUp 0.25s ease; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 1.25rem; }
+    .modal h2 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .modal .modal-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.25rem; }
+    .qty-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .qty-btn { width: 40px; height: 40px; border-radius: 8px; border: 1.5px solid var(--border); background: #fff; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: all 0.15s; flex-shrink: 0; }
+    .qty-btn:hover { border-color: var(--green); color: var(--green); }
+    .qty-input { flex: 1; text-align: center; font-size: 1.5rem; font-weight: 700; border: 1.5px solid var(--border); border-radius: 8px; padding: 0.5rem; outline: none; }
+    .qty-input:focus { border-color: var(--green); }
+    .modal-error { font-size: 0.8rem; color: var(--red); margin-bottom: 0.75rem; display: none; }
+    .btn-confirm { width: 100%; padding: 0.75rem; background: var(--green); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+    .btn-confirm:hover { background: var(--green-dark); }
+    .btn-confirm:disabled { background: #a7f3d0; cursor: not-allowed; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #111; color: #fff; padding: 0.75rem 1.5rem; border-radius: 10px; font-size: 0.875rem; font-weight: 500; z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+
+    .state { text-align: center; padding: 4rem 1rem; color: var(--muted); grid-column: 1/-1; }
+
     @media (max-width: 768px) {
-      .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; padding: 0.75rem; border-right: none; border-bottom: 1px solid var(--border); }
-      .logo-area { border-bottom: none; padding: 0 0.75rem 0 0; }
-      nav { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.25rem; padding: 0; }
-      .nav-label { display: none; }
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
       .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      .overlay { align-items: flex-end; }
     }
   </style>
 </head>
 <body>
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="logo-area">
-    <img id="logoImg" src="" alt="Logo" />
-    <div class="logo-text" id="logoText">PriceCat</div>
-    <div class="logo-sub">Price Catalog</div>
+    <div class="logo-text">PriceCat</div>
+    <div class="logo-sub">Price & Stock Catalog</div>
   </div>
   <nav>
     <div class="nav-label">Menu</div>
-    <button class="nav-item active" onclick="filterCategory('')" id="navAll">
+    <button class="nav-item active" onclick="filterCategory('')">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       All Products
     </button>
     <div id="sidebarCats"></div>
   </nav>
   <div class="sidebar-footer">
-    Associates View &nbsp;·&nbsp; <a href="/admin/" style="color:var(--green);font-size:0.75rem;text-decoration:none;">Admin</a>
+    Associates View &nbsp;·&nbsp; <a href="/admin/" style="color:var(--green);text-decoration:none;">Admin</a>
   </div>
 </aside>
 
 <div class="main">
   <div class="topbar">
+    <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:0.25rem;" id="menuBtn">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
     <h1 id="pageTitle">All Products</h1>
     <div class="search-wrap">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -122,69 +149,106 @@
 
   <div class="content">
     <div class="category-bar" id="categoryBar"></div>
-    <div class="section-title">
-      <span id="sectionLabel">Products</span>
-    </div>
-    <div id="grid" class="grid"></div>
+    <div class="grid" id="grid"><div class="state">Loading...</div></div>
   </div>
 </div>
+
+<!-- SELL MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="modalName">Product Name</h2>
+    <div class="modal-sub" id="modalSub">Available: 0 units</div>
+    <div class="qty-row">
+      <button class="qty-btn" onclick="changeQty(-1)">−</button>
+      <input type="number" class="qty-input" id="qtyInput" value="1" min="1" />
+      <button class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+    <p class="modal-error" id="modalError"></p>
+    <button class="btn-confirm" id="confirmBtn" onclick="confirmSale()">
+      ✓ Mark as Sold
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
   let allItems = [];
   let activeCategory = '';
   let searchTerm = '';
   let debounceTimer = null;
+  let sellItemId = null;
 
   const grid = document.getElementById('grid');
   const countBadge = document.getElementById('countBadge');
   const categoryBar = document.getElementById('categoryBar');
   const sidebarCats = document.getElementById('sidebarCats');
   const pageTitle = document.getElementById('pageTitle');
-  const sectionLabel = document.getElementById('sectionLabel');
+  const overlay = document.getElementById('overlay');
 
-  function fmt(v) {
-    return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(v);
+  function fmt(v) { return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(v); }
+
+  function stockStatus(item) {
+    const rem = item.units_remaining ?? (item.total_stock - item.units_sold);
+    if (item.total_stock === 0) return null;
+    if (rem <= 0) return { label: '🔴 Out of Stock', cls: 'status-out' };
+    if (rem < 20) return { label: '🟡 Low Stock', cls: 'status-low' };
+    return { label: '🟢 In Stock', cls: 'status-in' };
   }
 
-  function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1) return 'just now';
-    if (m < 60) return m + 'm ago';
-    const h = Math.floor(m / 60);
-    if (h < 24) return h + 'h ago';
-    return Math.floor(h / 24) + 'd ago';
-  }
-
-  function isRecent(dateStr) {
-    return Date.now() - new Date(dateStr).getTime() < 24 * 60 * 60 * 1000;
+  function progressColor(pct) {
+    if (pct >= 80) return 'fill-red';
+    if (pct >= 50) return 'fill-yellow';
+    return 'fill-green';
   }
 
   function renderGrid(items) {
     countBadge.textContent = items.length + ' item' + (items.length !== 1 ? 's' : '');
     if (!items.length) {
-      grid.innerHTML = `<div class="state" style="grid-column:1/-1">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
-        <p>No products found</p></div>`;
+      grid.innerHTML = '<div class="state">No products found.</div>';
       return;
     }
-    grid.innerHTML = items.map(item => `
-      <div class="card">
+    grid.innerHTML = items.map(item => {
+      const rem = item.total_stock > 0 ? (item.total_stock - item.units_sold) : null;
+      const pct = item.total_stock > 0 ? Math.round((item.units_sold / item.total_stock) * 100) : 0;
+      const status = stockStatus(item);
+      const outOfStock = rem !== null && rem <= 0;
+
+      return `<div class="card">
         <div class="card-img">
           ${item.imageUrl
             ? `<img src="${item.imageUrl}" alt="${item.name}" onerror="this.parentElement.innerHTML='<div class=no-img>📦</div>'" />`
-            : `<div class="no-img">📦</div>`}
+            : '<div class="no-img">📦</div>'}
+          ${status ? `<span class="status-badge ${status.cls}">${status.label}</span>` : ''}
         </div>
         <div class="card-body">
           <div class="card-cat">${item.category || 'General'}</div>
           <div class="card-name">${item.name}</div>
           <div class="card-price">${fmt(item.price)}</div>
-          <div class="card-updated" style="color:${isRecent(item.updatedAt) ? '#10b981' : ''}">
-            ${isRecent(item.updatedAt) ? '🟢 ' : ''}Updated ${timeAgo(item.updatedAt)}
-          </div>
+          ${item.total_stock > 0 ? `
+          <div class="stock-info">
+            <div class="stock-row"><span>Sold</span><span>${item.units_sold} / ${item.total_stock}</span></div>
+            <div class="progress-bar"><div class="progress-fill ${progressColor(pct)}" style="width:${pct}%"></div></div>
+            <div class="stock-row" style="margin-top:0.3rem"><span>Remaining</span><span>${rem} units</span></div>
+          </div>` : ''}
+          <button class="btn-sell" onclick="openSell(${item.id})" ${outOfStock ? 'disabled' : ''}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            ${outOfStock ? 'Out of Stock' : 'Mark as Sold'}
+          </button>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
+  }
+
+  function buildCategoryUI(items) {
+    const cats = [...new Set(items.map(i => i.category || 'General'))].sort();
+    categoryBar.innerHTML = `<span class="cat-pill active" data-cat="" onclick="filterCategory('')">All</span>` +
+      cats.map(c => `<span class="cat-pill" data-cat="${c}" onclick="filterCategory('${c}')">${c}</span>`).join('');
+    sidebarCats.innerHTML = cats.map(c => `
+      <button class="nav-item" data-cat="${c}" onclick="filterCategory('${c}')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>${c}
+      </button>`).join('');
   }
 
   function applyFilters() {
@@ -194,39 +258,16 @@
     renderGrid(items);
   }
 
-  function buildCategoryUI(items) {
-    const cats = [...new Set(items.map(i => i.category || 'General'))].sort();
-
-    // Top pills
-    categoryBar.innerHTML = `<span class="cat-pill active" data-cat="" onclick="filterCategory('')">All</span>` +
-      cats.map(c => `<span class="cat-pill" data-cat="${c}" onclick="filterCategory('${c}')">${c}</span>`).join('');
-
-    // Sidebar
-    sidebarCats.innerHTML = cats.map(c => `
-      <button class="nav-item" data-cat="${c}" onclick="filterCategory('${c}')">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        ${c}
-      </button>`).join('');
-  }
-
   function filterCategory(cat) {
     activeCategory = cat;
     pageTitle.textContent = cat || 'All Products';
-    sectionLabel.textContent = cat || 'All Products';
-
-    // Update pills
     document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
-    document.querySelectorAll('.nav-item').forEach(n => {
-      const d = n.dataset.cat;
-      n.classList.toggle('active', d === undefined ? cat === '' : d === cat);
-    });
-    document.getElementById('navAll').classList.toggle('active', cat === '');
-
+    document.querySelectorAll('.nav-item[data-cat]').forEach(n => n.classList.toggle('active', n.dataset.cat === cat));
+    document.querySelector('.nav-item:not([data-cat])')?.classList.toggle('active', cat === '');
     applyFilters();
   }
 
   async function loadItems() {
-    grid.innerHTML = `<div class="state" style="grid-column:1/-1"><p>Loading...</p></div>`;
     try {
       const res = await fetch('/api/items');
       if (!res.ok) throw new Error();
@@ -234,13 +275,78 @@
       buildCategoryUI(allItems);
       applyFilters();
     } catch {
-      grid.innerHTML = `<div class="state" style="grid-column:1/-1"><p>Could not load products.</p></div>`;
+      grid.innerHTML = '<div class="state">Could not load products.</div>';
     }
+  }
+
+  // SELL MODAL
+  function openSell(id) {
+    sellItemId = id;
+    const item = allItems.find(i => i.id === id);
+    const rem = item.total_stock - item.units_sold;
+    document.getElementById('modalName').textContent = item.name;
+    document.getElementById('modalSub').textContent = `Price: ${fmt(item.price)} · Available: ${rem} units`;
+    document.getElementById('qtyInput').value = 1;
+    document.getElementById('qtyInput').max = rem;
+    document.getElementById('modalError').style.display = 'none';
+    document.getElementById('confirmBtn').disabled = false;
+    overlay.classList.add('open');
+  }
+
+  function closeModal() { overlay.classList.remove('open'); sellItemId = null; }
+
+  function changeQty(delta) {
+    const input = document.getElementById('qtyInput');
+    const val = Math.max(1, parseInt(input.value || '1') + delta);
+    input.value = val;
+  }
+
+  async function confirmSale() {
+    const qty = parseInt(document.getElementById('qtyInput').value);
+    const errEl = document.getElementById('modalError');
+    errEl.style.display = 'none';
+    if (!qty || qty < 1) { errEl.textContent = 'Enter a valid quantity.'; errEl.style.display = 'block'; return; }
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.disabled = true;
+    try {
+      const res = await fetch('/api/sale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: sellItemId, quantity: qty }),
+      });
+      const data = await res.json();
+      if (!res.ok) { errEl.textContent = data.error || 'Failed to record sale.'; errEl.style.display = 'block'; confirmBtn.disabled = false; return; }
+
+      // Update local data
+      const idx = allItems.findIndex(i => i.id === sellItemId);
+      if (idx !== -1) allItems[idx] = { ...allItems[idx], ...data };
+      closeModal();
+      applyFilters();
+      showToast(`✓ Sold ${qty} unit${qty > 1 ? 's' : ''} of ${data.name}`);
+    } catch {
+      errEl.textContent = 'Network error. Try again.';
+      errEl.style.display = 'block';
+      confirmBtn.disabled = false;
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
   }
 
   document.getElementById('search').addEventListener('input', e => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => { searchTerm = e.target.value.trim(); applyFilters(); }, 300);
+  });
+
+  // Mobile menu button
+  if (window.innerWidth <= 768) document.getElementById('menuBtn').style.display = 'block';
+  window.addEventListener('resize', () => {
+    document.getElementById('menuBtn').style.display = window.innerWidth <= 768 ? 'block' : 'none';
   });
 
   loadItems();

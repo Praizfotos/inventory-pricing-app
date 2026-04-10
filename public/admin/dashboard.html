@@ -172,6 +172,9 @@
             <th>Product</th>
             <th>Category</th>
             <th>Price</th>
+            <th>Stock</th>
+            <th>Sold</th>
+            <th>Remaining</th>
             <th>Last Updated</th>
             <th>Actions</th>
           </tr>
@@ -202,6 +205,16 @@
       <div class="form-group">
         <label>Category</label>
         <input type="text" id="fCategory" placeholder="e.g. Electronics" />
+      </div>
+      <div class="form-group">
+        <label>Total Stock</label>
+        <input type="number" id="fStock" placeholder="0" min="0" step="1" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Units Sold (override)</label>
+        <input type="number" id="fSold" placeholder="0" min="0" step="1" />
       </div>
       <div class="form-group">
         <label>Product Image</label>
@@ -304,26 +317,26 @@
     if (catFilter) filtered = filtered.filter(i => (i.category || 'General') === catFilter);
 
     if (!filtered.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No products found.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No products found.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = filtered.map(item => `
-      <tr>
+    tbody.innerHTML = filtered.map(item => {
+      const rem = (item.total_stock || 0) - (item.units_sold || 0);
+      return `<tr>
         <td>
           <div class="item-info">
             <div class="item-img">
-              ${item.imageUrl
-                ? `<img src="${item.imageUrl}" alt="${item.name}" onerror="this.parentElement.textContent='📦'" />`
-                : '📦'}
+              ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" onerror="this.parentElement.textContent='📦'" />` : '📦'}
             </div>
-            <div>
-              <div class="item-name">${item.name}</div>
-            </div>
+            <div><div class="item-name">${item.name}</div></div>
           </div>
         </td>
         <td><span class="cat-badge">${item.category || 'General'}</span></td>
         <td><span class="price-tag">${fmt(item.price)}</span></td>
+        <td>${item.total_stock || 0}</td>
+        <td>${item.units_sold || 0}</td>
+        <td style="color:${rem <= 0 ? 'var(--red)' : rem < 20 ? '#92400e' : 'var(--green-dark)'};font-weight:600">${rem}</td>
         <td>${isRecent(item.updatedAt) ? '<span class="recent-dot"></span>' : ''}${timeAgo(item.updatedAt)}</td>
         <td>
           <div class="actions">
@@ -331,8 +344,8 @@
             <button class="btn-del" onclick="deleteItem(${item.id})">Delete</button>
           </div>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   }
 
   async function loadItems() {
@@ -361,17 +374,20 @@
       document.getElementById('fName').value = item.name;
       document.getElementById('fPrice').value = item.price;
       document.getElementById('fCategory').value = item.category || '';
-      // Show existing image preview
+      document.getElementById('fStock').value = item.total_stock || 0;
+      document.getElementById('fSold').value = item.units_sold || 0;
       if (item.imageUrl) {
         document.getElementById('imgPreviewImg').src = item.imageUrl;
         document.getElementById('imgPreview').style.display = 'flex';
         document.getElementById('imgPreview').style.alignItems = 'center';
-        pendingImageBase64 = item.imageUrl; // keep existing unless replaced
+        pendingImageBase64 = item.imageUrl;
       }
     } else {
       document.getElementById('fName').value = '';
       document.getElementById('fPrice').value = '';
       document.getElementById('fCategory').value = '';
+      document.getElementById('fStock').value = '';
+      document.getElementById('fSold').value = '';
     }
     overlay.classList.add('open');
     document.getElementById('fName').focus();
@@ -385,6 +401,8 @@
     const price = parseFloat(document.getElementById('fPrice').value);
     const category = document.getElementById('fCategory').value.trim() || 'General';
     const imageUrl = pendingImageBase64 || '';
+    const total_stock = parseInt(document.getElementById('fStock').value) || 0;
+    const units_sold = parseInt(document.getElementById('fSold').value) || 0;
 
     modalError.style.display = 'none';
     if (!name) { modalError.textContent = 'Product name is required.'; modalError.style.display = 'block'; return; }
@@ -397,7 +415,7 @@
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, price, category, imageUrl }),
+        body: JSON.stringify({ name, price, category, imageUrl, total_stock, units_sold }),
       });
       if (res.status === 401) { redirect401(); return; }
       if (!res.ok) {

@@ -100,7 +100,35 @@ app.post('/api/admin/logout', (req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
-// ── ADMIN ITEMS ──────────────────────────────────────────
+// GET /api/admin/analytics — dashboard stats
+app.get('/api/admin/analytics', async (_req: Request, res: Response) => {
+  const db = getDb();
+  const items = await db.query(`
+    SELECT 
+      COUNT(*) AS total_products,
+      SUM(units_sold) AS total_units_sold,
+      SUM(units_sold * price) AS total_revenue,
+      SUM(total_stock) AS total_stock,
+      SUM(CASE WHEN total_stock - units_sold <= 0 THEN 1 ELSE 0 END) AS out_of_stock,
+      SUM(CASE WHEN total_stock - units_sold > 0 AND total_stock - units_sold < 20 THEN 1 ELSE 0 END) AS low_stock
+    FROM items
+  `);
+  const topSelling = await db.query(`
+    SELECT name, units_sold, price, (units_sold * price) AS revenue, category
+    FROM items ORDER BY units_sold DESC LIMIT 5
+  `);
+  const byCategory = await db.query(`
+    SELECT category, SUM(units_sold) AS units_sold, SUM(units_sold * price) AS revenue
+    FROM items GROUP BY category ORDER BY revenue DESC
+  `);
+  res.json({
+    stats: items.rows[0],
+    topSelling: topSelling.rows,
+    byCategory: byCategory.rows,
+  });
+});
+
+
 
 app.post('/api/admin/items', async (req: Request, res: Response) => {
   const { name, price, category, imageUrl, total_stock } = req.body as {

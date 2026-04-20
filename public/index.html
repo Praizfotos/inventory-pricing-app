@@ -195,14 +195,32 @@
 
 <script>
   function toggleSidebar() {
-    const open = document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebarBackdrop').classList.toggle('open', open);
+    const isOpen = document.getElementById('sidebar').classList.contains('open');
+    if (isOpen) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  }
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarBackdrop').classList.add('open');
+    // Push state so back button closes sidebar instead of leaving page
+    history.pushState({ sidebarOpen: true }, '');
   }
 
   function closeSidebar() {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebarBackdrop').classList.remove('open');
   }
+
+  // Handle back button — close sidebar instead of leaving
+  window.addEventListener('popstate', function(e) {
+    if (document.getElementById('sidebar').classList.contains('open')) {
+      closeSidebar();
+    }
+  });
   let activeCategory = '';
   let searchTerm = '';
   let debounceTimer = null;

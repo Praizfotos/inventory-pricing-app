@@ -3,145 +3,173 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin — PriceCat</title>
+  <title>PriceCat Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#2563eb"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--green:#10b981;--green-dark:#059669;--green-light:#d1fae5;--orange:#f97316;--blue:#3b82f6;--purple:#8b5cf6;--red:#ef4444;--red-light:#fee2e2;--yellow:#f59e0b;--bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--sidebar:#1e293b;--radius:14px}
+    :root{
+      --blue:#2563eb;--blue-dark:#1d4ed8;--blue-light:#eff6ff;--blue-mid:#dbeafe;
+      --green:#10b981;--green-light:#d1fae5;
+      --red:#ef4444;--red-light:#fee2e2;
+      --yellow:#f59e0b;--yellow-light:#fef3c7;
+      --orange:#f97316;
+      --bg:#f8fafc;--card:#fff;--text:#0f172a;--muted:#64748b;
+      --border:#e2e8f0;--sidebar:#1e3a5f;--radius:12px;
+    }
     body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
-    .sidebar{width:230px;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;transition:transform .3s ease}
-    .logo{padding:1.25rem;border-bottom:1px solid rgba(255,255,255,.07)}
+
+    /* SIDEBAR */
+    .sidebar{width:220px;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;transition:transform .3s ease}
+    .logo{padding:1.25rem 1.25rem 1rem;border-bottom:1px solid rgba(255,255,255,.1)}
     .logo-row{display:flex;align-items:center;gap:.625rem}
-    .logo-icon{width:34px;height:34px;background:var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1rem}
+    .logo-icon{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.95rem}
     .logo-name{font-size:1.1rem;font-weight:700;color:#fff}
-    .logo-name span{color:var(--green)}
-    .sidebar-close{display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);padding:.2rem;border-radius:6px;margin-left:auto}
-    nav{padding:.75rem;flex:1;overflow-y:auto}
-    .nav-section{font-size:.62rem;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;padding:.75rem .75rem .35rem}
-    .nav-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem .75rem;border-radius:10px;cursor:pointer;font-size:.83rem;color:rgba(255,255,255,.55);transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;text-decoration:none;font-family:'Poppins',sans-serif}
-    .nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
-    .nav-item.active{background:var(--green);color:#fff;font-weight:600}
+    .logo-name span{color:#93c5fd}
+    .sidebar-close{display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.5);padding:.2rem;border-radius:6px;margin-left:auto;flex-shrink:0}
+    .sidebar-close:hover{color:#fff}
+    nav{padding:.75rem .75rem;flex:1;overflow-y:auto}
+    .nav-section{font-size:.6rem;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;padding:.75rem .75rem .3rem}
+    .nav-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;border-radius:8px;cursor:pointer;font-size:.82rem;color:rgba(255,255,255,.6);transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;text-decoration:none;font-family:'Poppins',sans-serif}
+    .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+    .nav-item.active{background:var(--blue);color:#fff;font-weight:600}
     .nav-item-left{display:flex;align-items:center;gap:.6rem}
     .nav-item svg{width:15px;height:15px;flex-shrink:0}
-    .nav-badge{background:rgba(255,255,255,.15);color:#fff;font-size:.62rem;font-weight:600;padding:.1rem .4rem;border-radius:20px;min-width:18px;text-align:center}
+    .nav-badge{background:var(--blue);color:#fff;font-size:.6rem;font-weight:700;padding:.1rem .4rem;border-radius:20px;min-width:18px;text-align:center}
     .nav-item.active .nav-badge{background:rgba(255,255,255,.25)}
-    .sidebar-footer{padding:.75rem;border-top:1px solid rgba(255,255,255,.07)}
-    .logout-btn{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:10px;cursor:pointer;font-size:.83rem;color:rgba(255,255,255,.45);border:none;background:none;width:100%;font-family:'Poppins',sans-serif;transition:all .15s}
+    .sidebar-footer{padding:.75rem;border-top:1px solid rgba(255,255,255,.08)}
+    .logout-btn{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:8px;cursor:pointer;font-size:.82rem;color:rgba(255,255,255,.45);border:none;background:none;width:100%;font-family:'Poppins',sans-serif;transition:all .15s}
     .logout-btn:hover{background:rgba(239,68,68,.15);color:#ef4444}
     .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}
-    .main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-    .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.875rem 1.75rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:50}
+
+    /* MAIN */
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+    /* TOPBAR */
+    .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.875rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:50}
     .menu-btn{display:none;background:none;border:none;cursor:pointer;padding:.25rem;border-radius:6px;color:var(--text)}
-    .topbar-left h1{font-size:1.3rem;font-weight:800}
-    .topbar-left p{font-size:.78rem;color:var(--muted);margin-top:1px}
+    .topbar-title{font-size:1.1rem;font-weight:700}
+    .topbar-search{flex:1;max-width:400px;position:relative}
+    .topbar-search svg{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--muted);width:15px;height:15px}
+    .topbar-search input{width:100%;padding:.5rem .75rem .5rem 2.2rem;border:1px solid var(--border);border-radius:8px;font-size:.85rem;outline:none;background:var(--bg);font-family:'Poppins',sans-serif;color:var(--text)}
+    .topbar-search input:focus{border-color:var(--blue);background:#fff}
     .topbar-right{margin-left:auto;display:flex;align-items:center;gap:.625rem}
-    .tb-btn{display:flex;align-items:center;gap:.35rem;padding:.45rem .875rem;border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:background .15s}
-    .tb-btn-outline{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-    .tb-btn-outline:hover{background:var(--border)}
-    .tb-btn-green{background:var(--green);color:#fff}
-    .tb-btn-green:hover{background:var(--green-dark)}
-    .tb-btn-green:disabled{background:#a7f3d0;cursor:not-allowed}
-    .tab-content{display:none;padding:1.5rem 1.75rem;flex:1}
+    .btn{display:inline-flex;align-items:center;gap:.35rem;padding:.45rem .875rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:all .15s}
+    .btn-blue{background:var(--blue);color:#fff}
+    .btn-blue:hover{background:var(--blue-dark)}
+    .btn-blue:disabled{background:#93c5fd;cursor:not-allowed}
+    .btn-outline{background:#fff;color:var(--muted);border:1px solid var(--border)}
+    .btn-outline:hover{background:var(--bg)}
+
+    /* TABS */
+    .tab-content{display:none;padding:1.5rem;flex:1}
     .tab-content.active{display:block}
-    .kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem}
-    .kpi{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem}
-    .kpi.green-bg{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-color:#6ee7b7}
-    .kpi-icon{font-size:1.1rem;margin-bottom:.5rem}
-    .kpi-label{font-size:.72rem;font-weight:600;color:var(--muted);margin-bottom:.25rem}
-    .kpi.green-bg .kpi-label{color:#065f46}
-    .kpi-value{font-size:1.6rem;font-weight:800;line-height:1;margin-bottom:.4rem}
-    .kpi.green-bg .kpi-value{color:#064e3b}
-    .kpi-badge{display:inline-flex;align-items:center;gap:.2rem;font-size:.68rem;font-weight:600;padding:.15rem .45rem;border-radius:20px}
-    .badge-up{background:#dcfce7;color:#166534}
-    .badge-neutral{background:var(--border);color:var(--muted)}
-    .badge-down{background:var(--red-light);color:var(--red)}
-    .dash-grid{display:grid;grid-template-columns:1fr 300px;gap:1.25rem}
-    .dash-left,.dash-right{display:flex;flex-direction:column;gap:1.25rem}
-    .panel{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem}
-    .panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
-    .panel-title{font-size:.9rem;font-weight:700}
-    .panel-sub{font-size:.7rem;color:var(--muted);margin-top:1px}
-    .chart-wrap{position:relative;height:200px}
-    .top-tbl{width:100%;border-collapse:collapse}
-    .top-tbl th{font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:0 .5rem .625rem;text-align:left;border-bottom:1px solid var(--border)}
-    .top-tbl td{padding:.65rem .5rem;font-size:.8rem;border-bottom:1px solid var(--border);vertical-align:middle}
-    .top-tbl tr:last-child td{border-bottom:none}
-    .rank{width:22px;height:22px;border-radius:6px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--muted)}
-    .rank-1{background:#fef3c7;color:#92400e}.rank-2{background:#f1f5f9;color:#475569}.rank-3{background:#fff7ed;color:#9a3412}
-    .ubar-wrap{display:flex;align-items:center;gap:.4rem}
-    .ubar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
-    .ubar-fill{height:100%;background:var(--orange);border-radius:3px}
-    .ss-list{display:flex;flex-direction:column;gap:.625rem}
-    .ss-item{display:flex;align-items:center;justify-content:space-between;padding:.7rem .875rem;background:var(--bg);border-radius:10px}
-    .ss-left{display:flex;align-items:center;gap:.5rem;font-size:.83rem;font-weight:500}
-    .ss-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-    .dot-g{background:var(--green)}.dot-y{background:var(--yellow)}.dot-r{background:var(--red)}
-    .ss-count{font-size:1.1rem;font-weight:800}
-    .donut-wrap{position:relative;height:160px;display:flex;align-items:center;justify-content:center}
-    .donut-center{position:absolute;text-align:center}
-    .donut-pct{font-size:1.4rem;font-weight:800}
-    .donut-lbl{font-size:.65rem;color:var(--muted)}
-    .legend{display:flex;flex-direction:column;gap:.4rem;margin-top:.75rem}
-    .legend-row{display:flex;align-items:center;gap:.45rem;font-size:.73rem}
-    .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .mini-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
-    .mini-stat{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1rem}
-    .ms-label{font-size:.68rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem}
-    .ms-value{font-size:1.5rem;font-weight:800}
-    .ms-sub{font-size:.68rem;color:var(--green);margin-top:.1rem}
+
+    /* STAT CARDS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+    .stat-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.1rem;display:flex;flex-direction:column;gap:.25rem}
+    .stat-card.blue{background:linear-gradient(135deg,var(--blue),var(--blue-dark));border:none}
+    .stat-card.blue .stat-label,.stat-card.blue .stat-sub{color:rgba(255,255,255,.8)}
+    .stat-card.blue .stat-value{color:#fff}
+    .stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:.25rem}
+    .si-blue{background:var(--blue-light)}
+    .si-green{background:var(--green-light)}
+    .si-yellow{background:var(--yellow-light)}
+    .si-red{background:var(--red-light)}
+    .si-white{background:rgba(255,255,255,.2)}
+    .stat-label{font-size:.7rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .stat-value{font-size:1.6rem;font-weight:800;line-height:1}
+    .stat-sub{font-size:.7rem;color:var(--muted)}
+    .stat-badge{display:inline-flex;align-items:center;font-size:.65rem;font-weight:600;padding:.15rem .45rem;border-radius:20px;margin-top:.2rem}
+    .sb-green{background:var(--green-light);color:#065f46}
+    .sb-blue{background:var(--blue-light);color:var(--blue-dark)}
+    .sb-neutral{background:var(--border);color:var(--muted)}
+
+    /* TABLE SECTION */
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem}
+    .section-title{font-size:1rem;font-weight:700}
+    .section-sub{font-size:.75rem;color:var(--muted);margin-top:1px}
+    .filters{display:flex;align-items:center;gap:.625rem;flex-wrap:wrap}
+    .filter-input{padding:.42rem .75rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;background:#fff;font-family:'Poppins',sans-serif;color:var(--text)}
+    .filter-input:focus{border-color:var(--blue)}
     .tbl-wrap{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
-    .tbl-hdr{padding:.875rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.875rem;flex-wrap:wrap}
-    .tbl-hdr h2{font-size:.9rem;font-weight:700}
-    .srch{position:relative;flex:1;max-width:280px}
-    .srch svg{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);width:13px;height:13px}
-    .srch input{width:100%;padding:.42rem .75rem .42rem 1.9rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;font-family:'Poppins',sans-serif;color:var(--text)}
-    .srch input:focus{border-color:var(--green)}
-    .cat-sel{padding:.42rem .75rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;outline:none;background:#fff;font-family:'Poppins',sans-serif}
     table{width:100%;border-collapse:collapse;font-size:.82rem}
-    thead th{text-align:left;padding:.7rem 1rem;background:var(--bg);color:var(--muted);font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
-    tbody td{padding:.8rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+    thead th{text-align:left;padding:.75rem 1rem;background:var(--bg);color:var(--muted);font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+    tbody td{padding:.875rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
     tbody tr:last-child td{border-bottom:none}
-    tbody tr:hover{background:#fafafa}
-    .iimg{width:36px;height:36px;border-radius:8px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden}
+    tbody tr:hover{background:#f8fafc}
+    .iimg{width:38px;height:38px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden}
     .iimg img{width:100%;height:100%;object-fit:cover}
-    .iinfo{display:flex;align-items:center;gap:.625rem}
-    .iname{font-weight:600;font-size:.82rem}
-    .ptag{font-weight:700;color:var(--green-dark)}
-    .cbadge{background:var(--green-light);color:var(--green-dark);font-size:.65rem;font-weight:600;padding:.18rem .5rem;border-radius:20px}
+    .iinfo{display:flex;align-items:center;gap:.75rem}
+    .iname{font-weight:600;font-size:.85rem}
+    .ptag{font-weight:700;color:var(--blue-dark);font-size:.9rem}
+    .cbadge{background:var(--blue-light);color:var(--blue-dark);font-size:.65rem;font-weight:600;padding:.18rem .55rem;border-radius:20px}
+    .stock-badge{font-size:.7rem;font-weight:600;padding:.2rem .55rem;border-radius:20px}
+    .sb-ok{background:var(--green-light);color:#065f46}
+    .sb-low{background:var(--yellow-light);color:#92400e}
+    .sb-out{background:var(--red-light);color:var(--red)}
     .acts{display:flex;gap:.4rem}
-    .bedit{background:var(--green-light);color:var(--green-dark);border:none;border-radius:6px;padding:.28rem .65rem;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif}
-    .bedit:hover{background:#a7f3d0}
-    .bdel{background:var(--red-light);color:var(--red);border:none;border-radius:6px;padding:.28rem .65rem;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif}
+    .bedit{background:var(--blue-light);color:var(--blue-dark);border:none;border-radius:6px;padding:.3rem .7rem;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif}
+    .bedit:hover{background:var(--blue-mid)}
+    .bdel{background:var(--red-light);color:var(--red);border:none;border-radius:6px;padding:.3rem .7rem;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif}
     .bdel:hover{background:#fecaca}
-    .empty-row td{text-align:center;color:var(--muted);padding:2.5rem;font-style:italic}
+    .empty-row td{text-align:center;color:var(--muted);padding:3rem;font-style:italic}
+
+    /* MODAL */
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem}
     .overlay.open{display:flex}
-    .modal{background:#fff;border-radius:var(--radius);width:100%;max-width:480px;padding:1.5rem;box-shadow:0 20px 60px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto}
-    .modal h2{font-size:1rem;font-weight:700;margin-bottom:1.1rem}
-    .frow{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-    .fg{margin-bottom:.75rem}
-    .fg label{display:block;font-size:.75rem;font-weight:600;color:var(--text);margin-bottom:.3rem}
-    .fg input{width:100%;padding:.5rem .7rem;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;transition:border-color .15s;font-family:'Poppins',sans-serif;color:var(--text)}
-    .fg input:focus{border-color:var(--green)}
-    .mactions{display:flex;gap:.625rem;justify-content:flex-end;margin-top:.875rem}
-    .bcancel{background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:.5rem .875rem;font-size:.82rem;cursor:pointer;font-family:'Poppins',sans-serif}
-    .merr{font-size:.75rem;color:var(--red);margin-top:.4rem;display:none}
-    .loading{text-align:center;padding:3rem;color:var(--muted);font-size:.875rem}
-    @media(max-width:1100px){.dash-grid{grid-template-columns:1fr}}
+    .modal{background:#fff;border-radius:var(--radius);width:100%;max-width:520px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto}
+    .modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+    .modal-hdr h2{font-size:1.05rem;font-weight:700}
+    .modal-close{background:none;border:none;cursor:pointer;color:var(--muted);padding:.25rem;border-radius:6px}
+    .modal-close:hover{background:var(--bg);color:var(--text)}
+    .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+    .fg{display:flex;flex-direction:column;gap:.3rem}
+    .fg label{font-size:.75rem;font-weight:600;color:var(--text)}
+    .fg input{padding:.55rem .75rem;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;transition:border-color .15s;font-family:'Poppins',sans-serif;color:var(--text)}
+    .fg input:focus{border-color:var(--blue)}
+    .fg-full{grid-column:1/-1}
+    .img-preview{display:none;align-items:center;gap:.625rem;margin-top:.5rem}
+    .img-preview img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+    .merr{font-size:.75rem;color:var(--red);margin-top:.5rem;display:none;padding:.4rem .625rem;background:var(--red-light);border-radius:6px}
+    .mfooter{display:flex;gap:.625rem;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)}
+    .bcancel{background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:.5rem 1rem;font-size:.82rem;cursor:pointer;font-family:'Poppins',sans-serif}
+
+    /* ANALYTICS */
+    .analytics-grid{display:grid;grid-template-columns:1fr 280px;gap:1.25rem;margin-top:1.25rem}
+    .panel{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem}
+    .panel-title{font-size:.9rem;font-weight:700;margin-bottom:1rem}
+    .chart-wrap{height:200px;position:relative}
+    .ss-list{display:flex;flex-direction:column;gap:.625rem}
+    .ss-item{display:flex;align-items:center;justify-content:space-between;padding:.7rem .875rem;background:var(--bg);border-radius:8px}
+    .ss-left{display:flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:500}
+    .ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .dot-g{background:var(--green)}.dot-y{background:var(--yellow)}.dot-r{background:var(--red)}
+    .ss-count{font-size:1.1rem;font-weight:800}
+    .top-list{display:flex;flex-direction:column;gap:.5rem}
+    .top-item{display:flex;align-items:center;gap:.75rem;padding:.625rem;background:var(--bg);border-radius:8px}
+    .top-rank{width:22px;height:22px;border-radius:6px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--blue-dark);flex-shrink:0}
+    .top-name{flex:1;font-size:.82rem;font-weight:600}
+    .top-rev{font-size:.8rem;font-weight:700;color:var(--blue-dark)}
+
+    .loading{text-align:center;padding:3rem;color:var(--muted)}
+
+    @media(max-width:1024px){.analytics-grid{grid-template-columns:1fr}}
     @media(max-width:768px){
       .sidebar{transform:translateX(-100%)}
       .sidebar.open{transform:translateX(0)}
-      .sidebar-close{display:flex;align-items:center;justify-content:center}
+      .sidebar-close{display:flex!important;align-items:center;justify-content:center}
       .sidebar-backdrop.open{display:block}
       .main{margin-left:0}
-      .menu-btn{display:flex;align-items:center;justify-content:center}
-      .kpi-grid{grid-template-columns:1fr 1fr}
+      .menu-btn{display:flex!important;align-items:center;justify-content:center}
+      .fgrid{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
       .tab-content{padding:1rem}
       .topbar{padding:.875rem 1rem}
-      .frow{grid-template-columns:1fr}
+      .topbar-search{max-width:none;flex:1}
     }
   </style>
 </head>
@@ -153,194 +181,255 @@
     <div class="logo-row">
       <div class="logo-icon">P</div>
       <div class="logo-name">Price<span>Cat</span></div>
-      <button class="sidebar-close" onclick="closeSidebar()">
-        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      <button class="sidebar-close" id="sidebarCloseBtn" onclick="closeSidebar()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </div>
   </div>
   <nav>
     <div class="nav-section">Main Menu</div>
-    <button class="nav-item active" id="navHome" onclick="showTab('analytics')">
-      <div class="nav-item-left"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dashboard</div>
+    <button class="nav-item active" id="navDash" onclick="showTab('dashboard')">
+      <div class="nav-item-left">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
       <span class="nav-badge">1</span>
     </button>
     <button class="nav-item" id="navProducts" onclick="showTab('products')">
-      <div class="nav-item-left"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Products</div>
+      <div class="nav-item-left">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Products
+      </div>
       <span class="nav-badge" id="productsBadge">0</span>
     </button>
+    <div class="nav-section">System</div>
     <a href="/" class="nav-item">
-      <div class="nav-item-left"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Associate View</div>
+      <div class="nav-item-left">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Associate View
+      </div>
     </a>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
     </button>
   </div>
 </aside>
 
 <div class="main">
   <div class="topbar">
-    <button class="menu-btn" onclick="toggleSidebar()">
-      <svg width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    <button class="menu-btn" id="menuBtn" onclick="openSidebar()">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
     </button>
-    <div class="topbar-left">
-      <h1 id="topTitle">Welcome Back! 👋</h1>
-      <p id="topSub">Let's see your current sales work today</p>
+    <div class="topbar-title" id="topTitle">Dashboard</div>
+    <div class="topbar-search">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" id="search" placeholder="Search products..."/>
     </div>
     <div class="topbar-right" id="topbarRight">
-      <button class="tb-btn tb-btn-outline" onclick="loadAnalytics()">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh
+      <button class="btn btn-outline" onclick="loadDashboard()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
       </button>
     </div>
   </div>
 
-  <div class="tab-content active" id="tab-analytics">
-    <div id="aLoading" class="loading">Loading analytics...</div>
-    <div id="aContent" style="display:none">
-      <div class="kpi-grid" id="kpiGrid"></div>
-      <div class="dash-grid">
-        <div class="dash-left">
-          <div class="panel">
-            <div class="panel-hdr"><div><div class="panel-title">Sales by Category</div><div class="panel-sub">Revenue per category</div></div></div>
-            <div class="chart-wrap"><canvas id="barChart"></canvas></div>
-          </div>
-          <div class="panel">
-            <div class="panel-hdr"><div class="panel-title">Top Selling Products</div></div>
-            <table class="top-tbl">
-              <thead><tr><th>#</th><th>Product</th><th>Units</th><th>Revenue</th></tr></thead>
-              <tbody id="topTbody"></tbody>
-            </table>
-          </div>
+  <!-- DASHBOARD TAB -->
+  <div class="tab-content active" id="tab-dashboard">
+    <div class="section-header">
+      <div><div class="section-title">Overview</div><div class="section-sub" id="dateStr"></div></div>
+    </div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card"><div class="stat-icon si-blue">💰</div><div class="stat-label">Total Revenue</div><div class="stat-value" id="s-rev">—</div><span class="stat-badge sb-blue">from sales</span></div>
+      <div class="stat-card blue"><div class="stat-icon si-white">📦</div><div class="stat-label">Total Products</div><div class="stat-value" id="s-prod">—</div><span class="stat-badge sb-neutral">in catalog</span></div>
+      <div class="stat-card"><div class="stat-icon si-green">🛒</div><div class="stat-label">Units Sold</div><div class="stat-value" id="s-sold">—</div><span class="stat-badge sb-green">total</span></div>
+      <div class="stat-card"><div class="stat-icon si-yellow">📊</div><div class="stat-label">Avg Sale Value</div><div class="stat-value" id="s-avg">—</div><span class="stat-badge sb-blue">per unit</span></div>
+    </div>
+    <div class="analytics-grid">
+      <div>
+        <div class="panel">
+          <div class="panel-title">Top Selling Products</div>
+          <div class="top-list" id="topList"><div class="loading">Loading...</div></div>
         </div>
-        <div class="dash-right">
-          <div class="panel">
-            <div class="panel-hdr"><div class="panel-title">Stock Status</div></div>
-            <div class="ss-list" id="sslist"></div>
-          </div>
-          <div class="panel">
-            <div class="panel-hdr"><div><div class="panel-title">Statistic Activity</div><div class="panel-sub">Revenue by category</div></div></div>
-            <div class="donut-wrap"><canvas id="donutChart"></canvas>
-              <div class="donut-center"><div class="donut-pct" id="dPct">0%</div><div class="donut-lbl">sold</div></div>
-            </div>
-            <div class="legend" id="dLegend"></div>
-          </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div class="panel">
+          <div class="panel-title">Stock Status</div>
+          <div class="ss-list" id="sslist"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Categories</div>
+          <div class="ss-list" id="catList"></div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- PRODUCTS TAB -->
   <div class="tab-content" id="tab-products">
-    <div class="mini-stats">
-      <div class="mini-stat"><div class="ms-label">Total Products</div><div class="ms-value" id="statTotal">—</div><div class="ms-sub">in catalog</div></div>
-      <div class="mini-stat"><div class="ms-label">Categories</div><div class="ms-value" id="statCats">—</div><div class="ms-sub">groups</div></div>
-      <div class="mini-stat"><div class="ms-label">Total Sold</div><div class="ms-value" id="statSold">—</div><div class="ms-sub">units</div></div>
+    <div class="section-header">
+      <div><div class="section-title">Products</div><div class="section-sub">Manage your price catalog</div></div>
+      <div class="filters">
+        <select class="filter-input" id="catFilter"><option value="">All Categories</option></select>
+        <button class="btn btn-blue" onclick="openModal()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Add Product
+        </button>
+      </div>
     </div>
     <div class="tbl-wrap">
-      <div class="tbl-hdr">
-        <h2>All Products</h2>
-        <div class="srch"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" id="search" placeholder="Search..."/></div>
-        <select class="cat-sel" id="catFilter"><option value="">All Categories</option></select>
-      </div>
       <table>
-        <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Sold</th><th>Remaining</th><th>Actions</th></tr></thead>
-        <tbody id="tbody"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+        <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Sold</th><th>Remaining</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="tbody"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody>
       </table>
     </div>
   </div>
 </div>
 
+<!-- MODAL -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <h2 id="modalTitle">Add Product</h2>
-    <div class="frow">
-      <div class="fg"><label>Product Name *</label><input type="text" id="fName" placeholder="e.g. Widget A"/></div>
-      <div class="fg"><label>Price *</label><input type="number" id="fPrice" placeholder="0.00" min="0.01" step="0.01"/></div>
+    <div class="modal-hdr">
+      <h2 id="modalTitle">Add Product</h2>
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
     </div>
-    <div class="frow">
+    <div class="fgrid">
+      <div class="fg"><label>Product Name *</label><input type="text" id="fName" placeholder="e.g. Brush"/></div>
+      <div class="fg"><label>Price (₦) *</label><input type="number" id="fPrice" placeholder="0.00" min="0.01" step="0.01"/></div>
       <div class="fg"><label>Category</label><input type="text" id="fCategory" placeholder="e.g. Beauty"/></div>
-      <div class="fg"><label>Total Stock</label><input type="number" id="fStock" placeholder="0" min="0" step="1"/></div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>Units Sold (override)</label><input type="number" id="fSold" placeholder="0" min="0" step="1"/></div>
+      <div class="fg"><label>Total Stock</label><input type="number" id="fStock" placeholder="0" min="0"/></div>
+      <div class="fg"><label>Units Sold (override)</label><input type="number" id="fSold" placeholder="0" min="0"/></div>
       <div class="fg">
         <label>Product Image</label>
-        <input type="file" id="fImage" accept="image/*" style="padding:.4rem .5rem;font-size:.78rem;width:100%;border:1.5px solid var(--border);border-radius:8px;font-family:'Poppins',sans-serif"/>
-        <div id="imgPreview" style="margin-top:.5rem;display:none;align-items:center;gap:.5rem">
-          <img id="imgPreviewImg" style="width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"/>
+        <input type="file" id="fImage" accept="image/*" style="padding:.45rem .5rem;font-size:.78rem;width:100%;border:1.5px solid var(--border);border-radius:8px;font-family:'Poppins',sans-serif"/>
+        <div class="img-preview" id="imgPreview">
+          <img id="imgPreviewImg" src="" alt="preview"/>
           <button type="button" onclick="clearImage()" style="background:var(--red-light);color:var(--red);border:none;border-radius:6px;padding:.22rem .5rem;font-size:.72rem;cursor:pointer;font-family:'Poppins',sans-serif">Remove</button>
         </div>
       </div>
     </div>
     <p class="merr" id="modalError"></p>
-    <div class="mactions">
+    <div class="mfooter">
       <button class="bcancel" onclick="closeModal()">Cancel</button>
-      <button class="tb-btn tb-btn-green" id="saveBtn" onclick="saveItem()">Save Product</button>
+      <button class="btn btn-blue" id="saveBtn" onclick="saveItem()">Save Product</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, deleteDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, doc, addDoc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// Auth check
 if(!sessionStorage.getItem('adminAuth')){ window.location.href='/admin/index.html'; }
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAvsqS7MzHKFjLU3WeeWFljfcsrUumn6Gk",
-  authDomain: "inventory-app-31f06.firebaseapp.com",
-  projectId: "inventory-app-31f06",
-  storageBucket: "inventory-app-31f06.firebasestorage.app",
-  messagingSenderId: "155610951063",
-  appId: "1:155610951063:web:14c42a82daa84eb4cd28d2"
+  apiKey:"AIzaSyAvsqS7MzHKFjLU3WeeWFljfcsrUumn6Gk",
+  authDomain:"inventory-app-31f06.firebaseapp.com",
+  projectId:"inventory-app-31f06",
+  storageBucket:"inventory-app-31f06.firebasestorage.app",
+  messagingSenderId:"155610951063",
+  appId:"1:155610951063:web:14c42a82daa84eb4cd28d2"
 };
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
 
-const COLORS=['#10b981','#f97316','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899'];
-let items=[],editingId=null,searchTerm='',catFilter='',debounceTimer=null,pendingImg=null;
-let barChart=null,donutChart=null;
+let items=[], editingId=null, searchTerm='', catFilter='', debounceTimer=null, pendingImg=null;
 
 function fmt(v){return new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(v||0)}
 function num(v){return Number(v||0)}
 
-function toggleSidebar(){const o=document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarBackdrop').classList.toggle('open',o)}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarBackdrop').classList.remove('open')}
-window.toggleSidebar=toggleSidebar;window.closeSidebar=closeSidebar;
+// SIDEBAR
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarBackdrop').classList.add('open');
+  history.pushState({sb:true},'');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('open');
+}
+window.openSidebar=openSidebar;
+window.closeSidebar=closeSidebar;
+window.addEventListener('popstate',()=>{
+  if(document.getElementById('sidebar').classList.contains('open')) closeSidebar();
+});
 
+// TABS
 function showTab(tab){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const map={analytics:'navHome',products:'navProducts'};
-  if(map[tab])document.getElementById(map[tab]).classList.add('active');
+  const map={dashboard:'navDash',products:'navProducts'};
+  if(map[tab]) document.getElementById(map[tab]).classList.add('active');
+  document.getElementById('topTitle').textContent = tab==='dashboard'?'Dashboard':'Products';
+  document.getElementById('topbarRight').innerHTML = tab==='dashboard'
+    ? `<button class="btn btn-outline" onclick="loadDashboard()"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh</button>`
+    : `<button class="btn btn-blue" onclick="openModal()"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add Product</button>`;
   closeSidebar();
-  if(tab==='analytics'){
-    document.getElementById('topTitle').textContent='Welcome Back! 👋';
-    document.getElementById('topSub').textContent="Let's see your current sales work today";
-    document.getElementById('topbarRight').innerHTML=`<button class="tb-btn tb-btn-outline" onclick="loadAnalytics()"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh</button>`;
-    loadAnalytics();
-  } else {
-    document.getElementById('topTitle').textContent='Products';
-    document.getElementById('topSub').textContent='Manage your price catalog';
-    document.getElementById('topbarRight').innerHTML=`<button class="tb-btn tb-btn-green" onclick="openModal()"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add Product</button>`;
-    loadItems();
-  }
+  if(tab==='products') loadItems();
+  else loadDashboard();
 }
 window.showTab=showTab;
 
+// DASHBOARD
+async function loadDashboard(){
+  document.getElementById('dateStr').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  try{
+    const snap = await getDocs(collection(db,'items'));
+    const data = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const tp=data.length;
+    const tr=data.reduce((a,i)=>a+num(i.units_sold)*num(i.price),0);
+    const tus=data.reduce((a,i)=>a+num(i.units_sold),0);
+    const avg=tus>0?tr/tus:0;
+    document.getElementById('s-rev').textContent=fmt(tr);
+    document.getElementById('s-prod').textContent=tp;
+    document.getElementById('s-sold').textContent=tus;
+    document.getElementById('s-avg').textContent=fmt(avg);
+    document.getElementById('productsBadge').textContent=tp;
+
+    // Top products
+    const top=[...data].sort((a,b)=>num(b.units_sold)-num(a.units_sold)).slice(0,5);
+    document.getElementById('topList').innerHTML = top.length
+      ? top.map((item,i)=>`<div class="top-item">
+          <div class="top-rank">${i+1}</div>
+          <div class="iimg" style="width:32px;height:32px;flex-shrink:0">${item.imageUrl?`<img src="${item.imageUrl}" alt="${item.name}" onerror="this.parentElement.textContent='📦'"/>`:'📦'}</div>
+          <div class="top-name">${item.name}<div style="font-size:.68rem;color:var(--muted);font-weight:400">${item.category||'General'}</div></div>
+          <div class="top-rev">${fmt(num(item.units_sold)*num(item.price))}</div>
+        </div>`).join('')
+      : '<div style="text-align:center;color:var(--muted);padding:1.5rem;font-size:.85rem">No sales yet</div>';
+
+    // Stock status
+    const oos=data.filter(i=>num(i.total_stock)>0&&num(i.total_stock)-num(i.units_sold)<=0).length;
+    const ls=data.filter(i=>{const r=num(i.total_stock)-num(i.units_sold);return r>0&&r<20}).length;
+    const ins=tp-oos-ls;
+    document.getElementById('sslist').innerHTML=`
+      <div class="ss-item"><div class="ss-left"><div class="ss-dot dot-g"></div>🟢 In Stock</div><div class="ss-count" style="color:#065f46">${ins}</div></div>
+      <div class="ss-item"><div class="ss-left"><div class="ss-dot dot-y"></div>🟡 Low Stock</div><div class="ss-count" style="color:#92400e">${ls}</div></div>
+      <div class="ss-item"><div class="ss-left"><div class="ss-dot dot-r"></div>🔴 Out of Stock</div><div class="ss-count" style="color:var(--red)">${oos}</div></div>`;
+
+    // Categories
+    const catMap={};
+    data.forEach(i=>{const c=i.category||'General';if(!catMap[c])catMap[c]=0;catMap[c]+=num(i.units_sold)*num(i.price)});
+    const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+    document.getElementById('catList').innerHTML = cats.length
+      ? cats.map(([c,r])=>`<div class="ss-item"><div class="ss-left"><div class="ss-dot" style="background:var(--blue)"></div>${c}</div><div style="font-weight:700;font-size:.85rem;color:var(--blue-dark)">${fmt(r)}</div></div>`).join('')
+      : '<div style="color:var(--muted);font-size:.82rem;padding:.5rem">No data yet</div>';
+  }catch(e){console.error(e)}
+}
+
+// PRODUCTS
 async function loadItems(){
   try{
     const snap=await getDocs(collection(db,'items'));
     items=snap.docs.map(d=>({id:d.id,...d.data()}));
-    document.getElementById('statTotal').textContent=items.length;
-    document.getElementById('statCats').textContent=new Set(items.map(i=>i.category||'General')).size;
-    document.getElementById('statSold').textContent=items.reduce((a,i)=>a+num(i.units_sold),0);
     document.getElementById('productsBadge').textContent=items.length;
     updateCatFilter();renderTable();
-  }catch(e){document.getElementById('tbody').innerHTML='<tr class="empty-row"><td colspan="7">Failed to load.</td></tr>'}
+  }catch{document.getElementById('tbody').innerHTML='<tr class="empty-row"><td colspan="8">Failed to load.</td></tr>'}
 }
 
 function updateCatFilter(){
@@ -352,91 +441,24 @@ function updateCatFilter(){
 
 function renderTable(){
   let f=items;
-  if(searchTerm)f=f.filter(i=>i.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  if(catFilter)f=f.filter(i=>(i.category||'General')===catFilter);
-  if(!f.length){document.getElementById('tbody').innerHTML='<tr class="empty-row"><td colspan="7">No products found.</td></tr>';return}
+  if(searchTerm) f=f.filter(i=>i.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  if(catFilter) f=f.filter(i=>(i.category||'General')===catFilter);
+  if(!f.length){document.getElementById('tbody').innerHTML='<tr class="empty-row"><td colspan="8">No products found.</td></tr>';return}
   document.getElementById('tbody').innerHTML=f.map(item=>{
     const rem=num(item.total_stock)-num(item.units_sold);
+    const statusCls=rem<=0&&num(item.total_stock)>0?'sb-out':rem<20&&num(item.total_stock)>0?'sb-low':'sb-ok';
+    const statusTxt=rem<=0&&num(item.total_stock)>0?'Out of Stock':rem<20&&num(item.total_stock)>0?'Low Stock':'In Stock';
     return`<tr>
       <td><div class="iinfo"><div class="iimg">${item.imageUrl?`<img src="${item.imageUrl}" alt="${item.name}" onerror="this.parentElement.textContent='📦'"/>`:'📦'}</div><div class="iname">${item.name}</div></div></td>
       <td><span class="cbadge">${item.category||'General'}</span></td>
       <td><span class="ptag">${fmt(item.price)}</span></td>
-      <td>${num(item.total_stock)}</td><td>${num(item.units_sold)}</td>
-      <td style="color:${rem<=0?'var(--red)':rem<20?'#92400e':'var(--green-dark)'};font-weight:600">${rem}</td>
+      <td>${num(item.total_stock)}</td>
+      <td>${num(item.units_sold)}</td>
+      <td style="color:${rem<=0?'var(--red)':rem<20?'#92400e':'#065f46'};font-weight:600">${rem}</td>
+      <td><span class="stock-badge ${statusCls}">${statusTxt}</span></td>
       <td><div class="acts"><button class="bedit" onclick="openEdit('${item.id}')">Edit</button><button class="bdel" onclick="deleteItem('${item.id}')">Delete</button></div></td>
     </tr>`;
   }).join('');
-}
-
-async function loadAnalytics(){
-  const aL=document.getElementById('aLoading'),aC=document.getElementById('aContent');
-  aL.style.display='block';aL.textContent='Loading analytics...';aC.style.display='none';
-  try{
-    const snap=await getDocs(collection(db,'items'));
-    const data=snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderAnalytics(data);
-  }catch{aL.innerHTML='Failed to load. <button onclick="loadAnalytics()" style="background:var(--green);color:#fff;border:none;border-radius:6px;padding:.25rem .75rem;cursor:pointer;font-family:Poppins,sans-serif;margin-left:.5rem">Retry</button>'}
-}
-
-function renderAnalytics(data){
-  const tp=data.length;
-  const tr=data.reduce((a,i)=>a+num(i.units_sold)*num(i.price),0);
-  const tus=data.reduce((a,i)=>a+num(i.units_sold),0);
-  const ts=data.reduce((a,i)=>a+num(i.total_stock),0);
-  const oos=data.filter(i=>num(i.total_stock)>0&&num(i.total_stock)-num(i.units_sold)<=0).length;
-  const ls=data.filter(i=>{const r=num(i.total_stock)-num(i.units_sold);return r>0&&r<20}).length;
-  const ins=tp-oos-ls;
-  const avg=tus>0?tr/tus:0;
-  const pct=ts>0?Math.round((tus/ts)*100):0;
-
-  document.getElementById('kpiGrid').innerHTML=`
-    <div class="kpi green-bg"><div class="kpi-icon">💰</div><div class="kpi-label">Total Revenue</div><div class="kpi-value">${fmt(tr)}</div><span class="kpi-badge badge-up">📦 ${tus} units sold</span></div>
-    <div class="kpi"><div class="kpi-icon">🛒</div><div class="kpi-label">Total Products</div><div class="kpi-value">${tp}</div><span class="kpi-badge badge-neutral">in catalog</span></div>
-    <div class="kpi"><div class="kpi-icon">📊</div><div class="kpi-label">Avg Sale Value</div><div class="kpi-value">${fmt(avg)}</div><span class="kpi-badge badge-up">per unit</span></div>
-    <div class="kpi"><div class="kpi-icon">📦</div><div class="kpi-label">Stock Sold</div><div class="kpi-value">${pct}%</div><span class="kpi-badge ${pct>80?'badge-down':'badge-up'}">${tus}/${ts}</span></div>`;
-
-  const top=[...data].sort((a,b)=>num(b.units_sold)-num(a.units_sold)).slice(0,5);
-  const maxU=top.length?Math.max(...top.map(t=>num(t.units_sold))):1;
-  document.getElementById('topTbody').innerHTML=top.length
-    ?top.map((item,i)=>`<tr>
-        <td><div class="rank rank-${i+1}">${i+1}</div></td>
-        <td><div style="font-weight:600;font-size:.8rem">${item.name}</div><div style="font-size:.65rem;color:var(--muted)">${item.category||'General'}</div></td>
-        <td><div class="ubar-wrap"><div class="ubar"><div class="ubar-fill" style="width:${Math.round((num(item.units_sold)/maxU)*100)}%"></div></div><span style="font-size:.72rem;font-weight:600;color:var(--muted)">${num(item.units_sold)}</span></div></td>
-        <td style="font-weight:700;color:var(--green-dark);font-size:.8rem">${fmt(num(item.units_sold)*num(item.price))}</td>
-      </tr>`).join('')
-    :'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:1.5rem">No sales yet</td></tr>';
-
-  document.getElementById('sslist').innerHTML=`
-    <div class="ss-item"><div class="ss-left"><div class="ss-dot dot-g"></div>🟢 In Stock</div><div class="ss-count" style="color:var(--green-dark)">${ins}</div></div>
-    <div class="ss-item"><div class="ss-left"><div class="ss-dot dot-y"></div>🟡 Low Stock</div><div class="ss-count" style="color:#92400e">${ls}</div></div>
-    <div class="ss-item"><div class="ss-left"><div class="ss-dot dot-r"></div>🔴 Out of Stock</div><div class="ss-count" style="color:var(--red)">${oos}</div></div>`;
-
-  document.getElementById('dPct').textContent=pct+'%';
-
-  const catMap={};
-  data.forEach(i=>{const c=i.category||'General';if(!catMap[c])catMap[c]={rev:0};catMap[c].rev+=num(i.units_sold)*num(i.price)});
-  const cats=Object.entries(catMap).map(([c,v])=>({category:c,revenue:v.rev})).sort((a,b)=>b.revenue-a.revenue);
-  const dd=cats.length?cats:[{category:'No data',revenue:1}];
-
-  if(barChart)barChart.destroy();
-  barChart=new Chart(document.getElementById('barChart'),{
-    type:'bar',
-    data:{labels:cats.map(c=>c.category),datasets:[{data:cats.map(c=>c.revenue),backgroundColor:cats.map((_,i)=>COLORS[i%COLORS.length]),borderRadius:10,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{family:'Poppins',size:10}}},y:{grid:{color:'#f1f5f9'},ticks:{font:{family:'Poppins',size:10},callback:v=>'₦'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}}}
-  });
-
-  if(donutChart)donutChart.destroy();
-  donutChart=new Chart(document.getElementById('donutChart'),{
-    type:'doughnut',
-    data:{labels:dd.map(c=>c.category),datasets:[{data:dd.map(c=>c.revenue||1),backgroundColor:COLORS,borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
-  });
-
-  document.getElementById('dLegend').innerHTML=dd.map((c,i)=>`
-    <div class="legend-row"><div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div><span style="flex:1;color:var(--muted)">${c.category}</span><span style="font-weight:700;font-size:.73rem">${fmt(c.revenue)}</span></div>`).join('');
-
-  document.getElementById('aLoading').style.display='none';
-  document.getElementById('aContent').style.display='block';
 }
 
 // IMAGE
@@ -460,7 +482,8 @@ window.openModal=function(id=null){
   editingId=id;pendingImg=null;
   document.getElementById('modalTitle').textContent=id?'Edit Product':'Add Product';
   document.getElementById('modalError').style.display='none';
-  document.getElementById('fImage').value='';document.getElementById('imgPreview').style.display='none';
+  document.getElementById('fImage').value='';
+  document.getElementById('imgPreview').style.display='none';
   if(id){
     const item=items.find(i=>i.id===id);
     document.getElementById('fName').value=item.name;
@@ -469,7 +492,9 @@ window.openModal=function(id=null){
     document.getElementById('fStock').value=num(item.total_stock);
     document.getElementById('fSold').value=num(item.units_sold);
     if(item.imageUrl){document.getElementById('imgPreviewImg').src=item.imageUrl;document.getElementById('imgPreview').style.display='flex';pendingImg=item.imageUrl}
-  }else{['fName','fPrice','fCategory','fStock','fSold'].forEach(id=>document.getElementById(id).value='')}
+  }else{
+    ['fName','fPrice','fCategory','fStock','fSold'].forEach(id=>document.getElementById(id).value='');
+  }
   document.getElementById('overlay').classList.add('open');
   document.getElementById('fName').focus();
 };
@@ -490,10 +515,10 @@ window.saveItem=async function(){
   const btn=document.getElementById('saveBtn');btn.disabled=true;
   try{
     const data={name,price,category,imageUrl,total_stock,units_sold,updatedAt:new Date().toISOString()};
-    if(editingId){await updateDoc(doc(db,'items',editingId),data)}
-    else{await addDoc(collection(db,'items'),data)}
+    if(editingId) await updateDoc(doc(db,'items',editingId),data);
+    else await addDoc(collection(db,'items'),data);
     window.closeModal();await loadItems();
-  }catch(e){errEl.textContent='Failed to save. Try again.';errEl.style.display='block'}
+  }catch{errEl.textContent='Failed to save. Try again.';errEl.style.display='block'}
   finally{btn.disabled=false}
 };
 
@@ -503,14 +528,17 @@ window.deleteItem=async function(id){
   catch{alert('Failed to delete.')}
 };
 
-document.getElementById('search').addEventListener('input',e=>{clearTimeout(debounceTimer);debounceTimer=setTimeout(()=>{searchTerm=e.target.value.trim();renderTable()},200)});
+document.getElementById('search').addEventListener('input',e=>{
+  clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(()=>{searchTerm=e.target.value.trim();renderTable()},200);
+});
 document.getElementById('catFilter').addEventListener('change',e=>{catFilter=e.target.value;renderTable()});
 document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))window.closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')window.closeModal()});
 
 window.logout=function(){sessionStorage.removeItem('adminAuth');window.location.href='/admin/index.html'};
 
-loadAnalytics();
+loadDashboard();
 </script>
 </body>
 </html>

@@ -78,7 +78,31 @@ app.post('/api/sale', async (req: Request, res: Response) => {
   res.json(result.rows[0]);
 });
 
-// ── ADMIN AUTH ───────────────────────────────────────────
+// POST /api/sale/reverse — undo a sale
+app.post('/api/sale/reverse', async (req: Request, res: Response) => {
+  const { itemId, quantity } = req.body as { itemId?: number; quantity?: number };
+  if (!itemId || typeof quantity !== 'number' || quantity <= 0) {
+    res.status(400).json({ error: 'itemId and quantity > 0 are required' });
+    return;
+  }
+  const db = getDb();
+  const existing = await db.query(
+    'SELECT id, units_sold FROM items WHERE id = $1', [itemId]
+  );
+  if (!existing.rows.length) { res.status(404).json({ error: 'Item not found' }); return; }
+  const item = existing.rows[0];
+  const newSold = Math.max(0, item.units_sold - quantity);
+  const result = await db.query(
+    `UPDATE items SET units_sold = $1, "updatedAt" = NOW()
+     WHERE id = $2
+     RETURNING id, name, price, total_stock, units_sold,
+               (total_stock - units_sold) AS units_remaining`,
+    [newSold, itemId]
+  );
+  res.json(result.rows[0]);
+});
+
+
 
 app.post('/api/admin/login', async (req: Request, res: Response) => {
   const { password } = req.body as { password?: string };

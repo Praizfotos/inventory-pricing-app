@@ -1,364 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Login — PriceCat</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#10b981" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green: #10b981;
-      --green-dark: #059669;
-      --green-light: #d1fae5;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --red: #ef4444;
-    }
-
-    body {
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #064e3b 0%, #10b981 50%, #34d399 100%);
-      padding: 1rem;
-    }
-
-    .card {
-      display: flex;
-      width: 100%;
-      max-width: 860px;
-      min-height: 520px;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-    }
-
-    /* LEFT — FORM */
-    .form-side {
-      flex: 1;
-      background: #fff;
-      padding: 3rem 2.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .brand-icon {
-      width: 40px;
-      height: 40px;
-      background: var(--green);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 1.25rem;
-      font-weight: 800;
-    }
-
-    .brand-name {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .brand-name span { color: var(--green); }
-
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.2;
-      margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-      font-size: 0.875rem;
-      color: var(--muted);
-      margin-bottom: 2rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .input-wrap {
-      position: relative;
-    }
-
-    .input-wrap svg {
-      position: absolute;
-      left: 0.875rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      width: 16px;
-      height: 16px;
-    }
-
-    input[type="password"] {
-      width: 100%;
-      padding: 0.75rem 0.875rem 0.75rem 2.5rem;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      background: #fafafa;
-    }
-
-    input[type="password"]:focus {
-      border-color: var(--green);
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
-    }
-
-    .error {
-      font-size: 0.8rem;
-      color: var(--red);
-      margin-top: 0.5rem;
-      display: none;
-      padding: 0.5rem 0.75rem;
-      background: #fef2f2;
-      border-radius: 8px;
-      border-left: 3px solid var(--red);
-    }
-
-    .btn-login {
-      width: 100%;
-      padding: 0.875rem;
-      background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      margin-top: 0.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    .btn-login:hover { opacity: 0.92; transform: translateY(-1px); }
-    .btn-login:active { transform: translateY(0); }
-    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-    .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 1.25rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-decoration: none;
-    }
-
-    .back-link:hover { color: var(--green); }
-
-    /* RIGHT — IMAGE */
-    .image-side {
-      flex: 1;
-      background: linear-gradient(160deg, #064e3b 0%, #10b981 60%, #6ee7b7 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .image-side::before {
-      content: '';
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 50%;
-      top: -80px;
-      right: -80px;
-    }
-
-    .image-side::after {
-      content: '';
-      position: absolute;
-      width: 200px;
-      height: 200px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 50%;
-      bottom: -60px;
-      left: -60px;
-    }
-
-    .image-icon {
-      font-size: 5rem;
-      margin-bottom: 1.5rem;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
-    }
-
-    .image-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #fff;
-      text-align: center;
-      line-height: 1.3;
-      margin-bottom: 0.75rem;
-    }
-
-    .image-sub {
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.75);
-      text-align: center;
-      line-height: 1.6;
-    }
-
-    .features {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      width: 100%;
-    }
-
-    .feature {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      padding: 0.625rem 0.875rem;
-      color: #fff;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .feature-icon {
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 640px) {
-      body { padding: 0; background: #fff; }
-      .card { flex-direction: column; border-radius: 0; min-height: 100vh; box-shadow: none; max-width: 100%; }
-      .image-side { display: none; }
-      .form-side { padding: 2.5rem 1.5rem; flex: 1; justify-content: center; }
-      h1 { font-size: 1.4rem; }
-      .brand { margin-bottom: 1.5rem; }
-      .subtitle { margin-bottom: 1.5rem; }
-    }
-
-    @media (min-width: 641px) and (max-width: 900px) {
-      .card { max-width: 700px; }
-      .image-side { padding: 2rem 1.5rem; }
-      .image-sub { display: none; }
-      .features { flex-direction: row; flex-wrap: wrap; }
-      .feature { flex: 1; min-width: 110px; font-size: 0.75rem; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--green:#10b981;--green-dark:#059669;--green-light:#d1fae5;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--red:#ef4444}
+    body{font-family:'Poppins',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#064e3b 0%,#10b981 50%,#34d399 100%);padding:1rem}
+    .card{display:flex;width:100%;max-width:860px;min-height:520px;border-radius:24px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.25)}
+    .form-side{flex:1;background:#fff;padding:3rem 2.5rem;display:flex;flex-direction:column;justify-content:center}
+    .brand{display:flex;align-items:center;gap:.5rem;margin-bottom:2rem}
+    .brand-icon{width:40px;height:40px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.25rem;font-weight:800}
+    .brand-name{font-size:1.25rem;font-weight:800;color:var(--text)}
+    .brand-name span{color:var(--green)}
+    h1{font-size:1.6rem;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:.5rem}
+    .subtitle{font-size:.875rem;color:var(--muted);margin-bottom:2rem}
+    label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em}
+    .input-wrap{position:relative}
+    .input-wrap svg{position:absolute;left:.875rem;top:50%;transform:translateY(-50%);color:var(--muted);width:16px;height:16px}
+    input[type="password"]{width:100%;padding:.75rem .875rem .75rem 2.5rem;border:1.5px solid var(--border);border-radius:10px;font-size:1rem;outline:none;transition:border-color .15s,box-shadow .15s;background:#fafafa;font-family:'Poppins',sans-serif;color:var(--text)}
+    input[type="password"]:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(16,185,129,.1)}
+    .error{font-size:.8rem;color:var(--red);margin-top:.5rem;display:none;padding:.5rem .75rem;background:#fef2f2;border-radius:8px;border-left:3px solid var(--red)}
+    .btn-login{width:100%;padding:.875rem;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s;margin-top:.5rem;font-family:'Poppins',sans-serif}
+    .btn-login:hover{opacity:.92;transform:translateY(-1px)}
+    .btn-login:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .back-link{display:block;text-align:center;margin-top:1.25rem;font-size:.8rem;color:var(--muted);text-decoration:none}
+    .back-link:hover{color:var(--green)}
+    .image-side{flex:1;background:linear-gradient(160deg,#064e3b 0%,#10b981 60%,#6ee7b7 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem;position:relative;overflow:hidden}
+    .image-side::before{content:'';position:absolute;width:300px;height:300px;background:rgba(255,255,255,.05);border-radius:50%;top:-80px;right:-80px}
+    .image-icon{font-size:5rem;margin-bottom:1.5rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2))}
+    .image-title{font-size:1.5rem;font-weight:800;color:#fff;text-align:center;line-height:1.3;margin-bottom:.75rem}
+    .image-sub{font-size:.875rem;color:rgba(255,255,255,.75);text-align:center;line-height:1.6}
+    .features{margin-top:2rem;display:flex;flex-direction:column;gap:.75rem;width:100%}
+    .feature{display:flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.1);border-radius:10px;padding:.625rem .875rem;color:#fff;font-size:.8rem;font-weight:500}
+    @media(max-width:640px){
+      body{padding:0;background:#fff}
+      .card{flex-direction:column;border-radius:0;min-height:100vh;box-shadow:none;max-width:100%}
+      .image-side{display:none}
+      .form-side{padding:2.5rem 1.5rem;flex:1;justify-content:center}
     }
   </style>
 </head>
 <body>
   <div class="card">
-
-    <!-- FORM SIDE -->
     <div class="form-side">
       <div class="brand">
         <div class="brand-icon">P</div>
         <div class="brand-name">Price<span>Cat</span></div>
       </div>
-
       <h1>Welcome back,<br>Admin 👋</h1>
       <p class="subtitle">Sign in to manage your product catalog</p>
-
-      <div class="form-group">
+      <div style="margin-bottom:1.25rem">
         <label>Admin Password</label>
         <div class="input-wrap">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"/>
         </div>
         <p class="error" id="error">Incorrect password. Please try again.</p>
       </div>
-
       <button class="btn-login" id="loginBtn">Sign In →</button>
-
       <a href="/" class="back-link">← Back to Price Catalog</a>
     </div>
-
-    <!-- IMAGE SIDE -->
     <div class="image-side">
       <div class="image-icon">🏪</div>
       <div class="image-title">Manage Your<br>Price Catalog</div>
       <p class="image-sub">Add products, update prices,<br>and track your inventory in real-time.</p>
       <div class="features">
-        <div class="feature"><span class="feature-icon">💰</span> Price Management</div>
-        <div class="feature"><span class="feature-icon">📦</span> Stock Tracking</div>
-        <div class="feature"><span class="feature-icon">📊</span> Sales Overview</div>
-        <div class="feature"><span class="feature-icon">🔒</span> Secure Access</div>
+        <div class="feature">💰 Price Management</div>
+        <div class="feature">📦 Stock Tracking</div>
+        <div class="feature">📊 Sales Analytics</div>
+        <div class="feature">🔒 Secure Access</div>
       </div>
     </div>
-
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvsqS7MzHKFjLU3WeeWFljfcsrUumn6Gk",
+      authDomain: "inventory-app-31f06.firebaseapp.com",
+      projectId: "inventory-app-31f06",
+      storageBucket: "inventory-app-31f06.firebasestorage.app",
+      messagingSenderId: "155610951063",
+      appId: "1:155610951063:web:14c42a82daa84eb4cd28d2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const btn = document.getElementById('loginBtn');
     const input = document.getElementById('password');
     const error = document.getElementById('error');
 
-    async function login() {
-      error.style.display = 'none';
-      btn.disabled = true;
-      btn.textContent = 'Signing in...';
-      try {
-        const res = await fetch('/api/admin/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: input.value }),
-        });
-        if (res.ok) {
-          window.location.href = '/admin/dashboard.html';
+    async function login(){
+      error.style.display='none';
+      btn.disabled=true;
+      btn.textContent='Signing in...';
+      try{
+        // Check password against Firestore config doc
+        const snap = await getDoc(doc(db,'config','admin'));
+        if(!snap.exists()){
+          // First time setup — accept 'admin' as default password
+          if(input.value==='admin'){
+            sessionStorage.setItem('adminAuth','true');
+            window.location.href='/admin/dashboard.html';
+          } else {
+            error.style.display='block';
+          }
         } else {
-          error.style.display = 'block';
-          input.value = '';
-          input.focus();
+          const data = snap.data();
+          if(input.value===data.password){
+            sessionStorage.setItem('adminAuth','true');
+            window.location.href='/admin/dashboard.html';
+          } else {
+            error.style.display='block';
+          }
         }
-      } catch {
-        error.style.display = 'block';
-        error.textContent = 'Network error. Please try again.';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Sign In →';
+      }catch(e){
+        error.textContent='Connection error. Try again.';
+        error.style.display='block';
+      }finally{
+        btn.disabled=false;
+        btn.textContent='Sign In →';
       }
     }
 
-    btn.addEventListener('click', login);
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    btn.addEventListener('click',login);
+    input.addEventListener('keydown',e=>{if(e.key==='Enter')login()});
     input.focus();
   </script>
 </body>

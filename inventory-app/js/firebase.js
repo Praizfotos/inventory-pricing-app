@@ -1,14 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, connectFirestoreEmulator } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 🔧 REPLACE with your Firebase project config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAvsqS7MzHKFjLU3WeeWFljfcsrUumn6Gk",
+  authDomain: "inventory-app-31f06.firebaseapp.com",
+  projectId: "inventory-app-31f06",
+  storageBucket: "inventory-app-31f06.firebasestorage.app",
+  messagingSenderId: "155610951063",
+  appId: "1:155610951063:web:14c42a82daa84eb4cd28d2"
 };
 
 const app = initializeApp(firebaseConfig);

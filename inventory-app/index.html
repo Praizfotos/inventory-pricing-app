@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <span class="brand">StockFlow</span>
+      <div class="header-actions">
+        <span id="admin-badge" class="admin-badge hidden">Admin</span>
+        <button id="login-btn" class="btn btn-ghost">Login</button>
+        <button id="logout-btn" class="btn btn-ghost hidden">Logout</button>
+      </div>
+    </header>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal-overlay hidden">
+      <div class="modal card">
+        <h2 class="section-title">Admin Login</h2>
+        <div class="form-group">
+          <input type="password" id="password-input" placeholder="Enter password" />
+        </div>
+        <p id="login-error" class="form-error hidden">Incorrect password.</p>
+        <div class="modal-actions">
+          <button id="login-submit" class="btn btn-primary">Login</button>
+          <button id="login-cancel" class="btn btn-ghost-dark">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="container">
+
+      <!-- Add Product (admin only) -->
+      <section class="card" id="add-product-section">
+        <h2 class="section-title">Add Product</h2>
+        <div id="admin-form-wrap">
+          <form id="product-form">
+            <div class="form-group">
+              <input type="text" id="product-name" placeholder="Product name" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <input type="number" id="product-price" placeholder="Price (₦)" min="0" step="0.01" />
+            </div>
+            <p id="form-error" class="form-error hidden"></p>
+            <button type="submit" class="btn btn-primary">Add Product</button>
+          </form>
+        </div>
+        <p id="admin-prompt" class="empty-state hidden">Login as admin to add products.</p>
+      </section>
+
+      <!-- Product List -->
+      <section id="inventory-section">
+        <h2 class="section-title">Inventory</h2>
+        <div id="product-list">
+          <p class="empty-state">Loading...</p>
+        </div>
+      </section>
+
+      <!-- Cart -->
+      <section class="card cart-empty" id="cart-section">
+        <div class="cart-header">
+          <h2 class="section-title">Cart</h2>
+          <button id="clear-cart-btn" class="btn btn-ghost-dark btn-sm">Clear</button>
+        </div>
+        <div id="cart-list">
+          <p class="empty-state">Cart is empty.</p>
+        </div>
+        <p id="cart-total" class="cart-total"></p>
+      </section>
+
+    </main>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

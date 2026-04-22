@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "inventory-app",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/generate-icons.js"
+    ]
+  }
+}
